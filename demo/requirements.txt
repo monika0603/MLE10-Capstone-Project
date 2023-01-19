@@ -1,0 +1,11 @@
+#--- 
+
+fastapi
+httpx
+uvicorn
+
+numpy
+pandas
+#pickle
+scikit-learn
+sklearn
