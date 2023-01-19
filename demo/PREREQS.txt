@@ -1,0 +1,12 @@
+#--- miniconda setup
+conda create --name env_capstone python=3.10.8
+conda activate env_capstone
+
+conda install pandas matplotlib ipykernel 
+pip install sklearn scikit-learn fastapi uvicorn
+
+
+#--- docker commands
+docker build -t img_apiclaimanoms:dev .
+
+docker run -p 48300:8000 --name ctr_apiClaimAnoms img_apiclaimanoms:dev
