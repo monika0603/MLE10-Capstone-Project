@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.ensemble import XGBoost
+from sklearn.ensemble import GradientBoostingClassifier
 from pickle import load, dump
 
 #--- default methods
