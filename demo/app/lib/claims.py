@@ -3,13 +3,15 @@ import pandas as pd
 
 
 m_kstrDataPath = "./app/data/"
+
+m_kstrPklClaims = m_kstrDataPath + 'deng_testClaims.pkl'
 #print("INFO:  ", os.getcwd())
 
 
 #--- load, merge data from file
 #def loadCsv_trainData():
 
-def loadCsv_testData():
+def loadCsv_testClaims():
     #--- TODO:  make optional arg test or train data
 
     #--- load all csv test data
@@ -33,8 +35,14 @@ def loadCsv_testData():
     #--- +merge provider data
     pdfTest_allPatBenefProv = pdfTest_allPatBenef.merge(pdfTest_provider, on='Provider', how='inner')
     
-    pdfTest_allPatBenefProv.to_pickle(m_kstrDataPath + 'deng_testPatBenefProv.pkl')
+    pdfTest_allPatBenefProv.to_pickle(m_kstrPklClaims)
     return pdfTest_allPatBenefProv
+
+
+def loadPkl_testClaims():
+    #--- convenience fxn to load the last processed claims data
+    pdfClaims = pd.read_pickle(m_kstrPklClaims)
+    return pdfClaims
 
 
 def do_featEng(pdfLoaded):
@@ -77,16 +85,52 @@ def do_featEng(pdfLoaded):
 
 def do_stdScaler(pdfFeatEng):
     #--- Note:  prediction runs on X_val
+    '''
+    #--- WARN:  The default value of numeric_only in DataFrameGroupBy.sum is deprecated. 
+    #           In a future version, numeric_only will default to False. Either specify 
+    #           numeric_only or select only columns which should be valid for the function.
+    '''
     pdfGroupBy = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
-    X = pdfGroupBy.drop(columns=['Provider', 'PotentialFraud'], axis=1)
+    try:
+        X = pdfGroupBy.drop(columns=['Provider', 'PotentialFraud'], axis=1)
+    except KeyError:
+        #--- catch:  there is no 'PotentialFraud' column
+        X = pdfGroupBy.drop(columns=['Provider'], axis=1)
+
+    #print("INFO:  ", X.columns)
 
     #--- apply scaler
     from sklearn.preprocessing import StandardScaler
     scaler = StandardScaler()
 
-    X_minmax = scaler.fit_transform(X)                          # BUG? not sure about a refit/transform that may not match the model
+    #--- note:  this is a numpy.ndarray
+    X_std = scaler.fit_transform(X)                          # BUG? not sure about a refit/transform that may not match the model
     #X_test = scaler.transform(test_final_groupby.iloc[:, 1:])  # BUG? still has provider, pot_fraud cols
-    return X_minmax
+    #print(X_std)
+    return X_std
+
+
+def do_stdScaler_toPdf(pdfFeatEng):
+    #--- NOTE:  the list of cols came from do_stdScaler; print(X.columns)
+    aryCols = ['InscClaimAmtReimbursed', 'DeductibleAmtPaid', 'AdmittedDays',
+       'NoOfMonths_PartACov', 'NoOfMonths_PartBCov', 'ChronicCond_Alzheimer',
+       'ChronicCond_Heartfailure', 'ChronicCond_KidneyDisease',
+       'ChronicCond_Cancer', 'ChronicCond_ObstrPulmonary',
+       'ChronicCond_Depression', 'ChronicCond_Diabetes',
+       'ChronicCond_IschemicHeart', 'ChronicCond_Osteoporasis',
+       'ChronicCond_rheumatoidarthritis', 'ChronicCond_stroke',
+       'IPAnnualReimbursementAmt', 'IPAnnualDeductibleAmt',
+       'OPAnnualReimbursementAmt', 'OPAnnualDeductibleAmt', 'Age', 'DeadOrNot',
+       'Gender_2', 'Race_2', 'Race_3', 'Race_5',
+       'ClaimReimbursement_ProviderAvg',
+       'ClaimReimbursement_AttendingPhysician',
+       'ClaimReimbursement_OperatingPhysician',
+       'DeductibleAmtPaid_ProviderAvg', 'DeductibleAmtPaid_AttendingPhysician',
+       'DeductibleAmtPaid_OperatingPhysician']
+
+    npaScaled = do_stdScaler(pdfFeatEng)
+    pdfScaled = pd.DataFrame(npaScaled, columns=aryCols)
+    return pdfScaled
 
 
 #--- data eng on inpatient data
