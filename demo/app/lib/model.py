@@ -1,8 +1,10 @@
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier
+import joblib
 #from pickle import load, dump
 from pathlib import Path
 import pickle
+
 
 kstrBasePath = Path(__file__).resolve().parent.parent
 kstrMdlPath = str(kstrBasePath / "model/")
@@ -30,7 +32,8 @@ def trainXGB(pdfData):
 def loadXGB_fromPkl():
     with open(m_kstrMdlPath_gbt, 'rb') as filPkl:
         # load using pickle de-serializer
-        mdlAnoms = pickle.load(filPkl)
+        #mdlAnoms = pickle.load(filPkl)
+        mdlAnoms = joblib.load(filPkl)
 
     #mdlAnoms = load(m_kstrMdlPath_gbt, 'rb')
     return mdlAnoms
