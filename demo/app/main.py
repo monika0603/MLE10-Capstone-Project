@@ -60,8 +60,8 @@ def index():
     }
 
 
-@api.get('/api/claims/predict/superv', response_class = HTMLResponse)
-@api.get('/api/claims/predict/xgb', response_class = HTMLResponse)
+@api.get('/test/claims/predict/superv', response_class = HTMLResponse)
+@api.get('/test/claims/predict/xgb', response_class = HTMLResponse)
 def predict_supervised_xgb(request: Request, response: Response):
     #--- load test data
     pdfClaims = libClaims.loadPkl_testClaims()
