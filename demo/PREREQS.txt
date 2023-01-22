@@ -6,7 +6,11 @@ conda install pandas matplotlib ipykernel
 pip install sklearn scikit-learn fastapi uvicorn
 
 
-#--- docker commands
+#--- docker commands (local)
 docker build -t img_apiclaimanoms:dev .
-
 docker run -p 48300:8000 --name ctr_apiClaimAnoms img_apiclaimanoms:dev
+
+
+#--- docker commands (publish)
+docker save <image:tag> > my_image.tar
+docker load my_image.tar
