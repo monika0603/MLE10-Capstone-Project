@@ -36,12 +36,15 @@ def loadCsv_testClaims():
     pdfTest_allPatBenefProv = pdfTest_allPatBenef.merge(pdfTest_provider, on='Provider', how='inner')
     
     pdfTest_allPatBenefProv.to_pickle(m_kstrPklClaims)
+
+    print("INFO (csvClaims.shape):  ", pdfTest_allPatBenefProv.shape)
     return pdfTest_allPatBenefProv
 
 
 def loadPkl_testClaims():
     #--- convenience fxn to load the last processed claims data
     pdfClaims = pd.read_pickle(m_kstrPklClaims)
+    print("INFO (pklClaims.shape):  ", pdfClaims.shape)
     return pdfClaims
 
 
@@ -90,6 +93,8 @@ def do_stdScaler(pdfFeatEng):
     #           In a future version, numeric_only will default to False. Either specify 
     #           numeric_only or select only columns which should be valid for the function.
     '''
+
+    #--- WARN:  this code groups all data by provider;  any predictions will also be by provider
     pdfGroupBy = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
     try:
         X = pdfGroupBy.drop(columns=['Provider', 'PotentialFraud'], axis=1)
@@ -100,6 +105,7 @@ def do_stdScaler(pdfFeatEng):
     #print("INFO:  ", X.columns)
 
     #--- apply scaler
+    #--- WARN:  scaling is also grouped by provider
     from sklearn.preprocessing import StandardScaler
     scaler = StandardScaler()
 
@@ -110,7 +116,7 @@ def do_stdScaler(pdfFeatEng):
     return X_std
 
 
-def do_stdScaler_toPdf(pdfFeatEng):
+def do_stdScaler_toPdf(npaScaled):
     #--- NOTE:  the list of cols came from do_stdScaler; print(X.columns)
     aryCols = ['InscClaimAmtReimbursed', 'DeductibleAmtPaid', 'AdmittedDays',
        'NoOfMonths_PartACov', 'NoOfMonths_PartBCov', 'ChronicCond_Alzheimer',
@@ -128,7 +134,7 @@ def do_stdScaler_toPdf(pdfFeatEng):
        'DeductibleAmtPaid_ProviderAvg', 'DeductibleAmtPaid_AttendingPhysician',
        'DeductibleAmtPaid_OperatingPhysician']
 
-    npaScaled = do_stdScaler(pdfFeatEng)
+    #npaScaled = do_stdScaler(pdfFeatEng)
     pdfScaled = pd.DataFrame(npaScaled, columns=aryCols)
     return pdfScaled
 

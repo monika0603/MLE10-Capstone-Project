@@ -61,17 +61,34 @@ def index():
 
 
 @api.get('/test/claims/predict/superv', response_class = HTMLResponse)
-@api.get('/test/claims/predict/xgb', response_class = HTMLResponse)
-def predict_supervised_xgb(request: Request, response: Response):
+@api.get('/test/claims/predict/gbc', response_class = HTMLResponse)
+def predict_supervised_gbc(request: Request, response: Response):
     #--- load test data
     pdfClaims = libClaims.loadPkl_testClaims()
+    print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+
     pdfFeatEng = libClaims.do_featEng(pdfClaims)
+    print("INFO (predict.pdfFeatEng.shape):  ", pdfFeatEng.shape)
+
     npaScaled = libClaims.do_stdScaler(pdfFeatEng)
+    pdfScaled = libClaims.do_stdScaler_toPdf(npaScaled)
+    print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
 
     ndaPredict = mdlClaims.predict(npaScaled)
-    pdfPredict = pd.DataFrame(ndaPredict)
+    print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
 
-    htmlSample = pdfPredict.sample(10).to_html(classes='table table-striped')
+    pdfPredict = pd.DataFrame(ndaPredict)
+    print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+
+    #--- stitch the grouped data with the labels
+    pdfResults = pdfScaled.copy()
+    pdfResults.insert(0, "hasAnom?", pdfPredict[0])
+
+    #--- filter to only those rows that are flagged with an anomaly
+    pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
+
+    #htmlSample = pdfPredict.head(50).to_html(classes='table table-striped')
+    htmlSample = pdfResults.head(50).to_html(classes='table table-striped')
 
     kstrTempl = 'templ_showDataframe.html'
     jsonContext = {'request': request, 
@@ -104,7 +121,7 @@ def get_claims_train():
 @api.get('/test/claims/loadCsv/', response_class = HTMLResponse)
 def tst_claims_loadedCsv(request: Request, response: Response):
     pdfClaims = libClaims.loadCsv_testClaims()
-    pdfSample = pdfClaims.sample(10)
+    pdfSample = pdfClaims.head(50)
     htmlSample = pdfSample.to_html(classes='table table-striped')
 
     kstrTempl = 'templ_showDataframe.html'
@@ -119,7 +136,7 @@ def tst_claims_loadedCsv(request: Request, response: Response):
 @api.get('/test/claims/loadPkl/', response_class = HTMLResponse)
 def tst_claims_loadedPkl(request: Request, response: Response):
     pdfClaims = libClaims.loadPkl_testClaims()
-    htmlSample = pdfClaims.sample(10).to_html(classes='table table-striped')
+    htmlSample = pdfClaims.head(50).to_html(classes='table table-striped')
 
     kstrTempl = 'templ_showDataframe.html'
     jsonContext = {'request': request, 
@@ -134,7 +151,7 @@ def tst_claims_loadedPkl(request: Request, response: Response):
 def tst_claims_featEng(request: Request, response: Response):
     pdfClaims = libClaims.loadPkl_testClaims()
     pdfFeatEng = libClaims.do_featEng(pdfClaims)
-    htmlSample = pdfFeatEng.sample(10).to_html(classes='table table-striped')
+    htmlSample = pdfFeatEng.head(50).to_html(classes='table table-striped')
 
     kstrTempl = 'templ_showDataframe.html'
     jsonContext = {'request': request, 
@@ -151,7 +168,7 @@ def tst_claims_stdScaling(request: Request, response: Response):
     pdfFeatEng = libClaims.do_featEng(pdfClaims)
     pdfScaled = libClaims.do_stdScaler_toPdf(pdfFeatEng)
 
-    htmlSample = pdfScaled.sample(10).to_html(classes='table table-striped')
+    htmlSample = pdfScaled.head(50).to_html(classes='table table-striped')
 
     kstrTempl = 'templ_showDataframe.html'
     jsonContext = {'request': request, 
