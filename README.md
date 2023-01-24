@@ -10,7 +10,7 @@ Abuse in healthcare system can take many forms such as:
     - Duplicate submission of a claim for the same service.
     - Charging for a more complex or expensive than was actually provided.
 
-In addition, there can be unintentional mistakes that results in erroneous charges.
+In addition, there can be unintentional mistakes that result in erroneous charges.
 
 **Data**
 The dataset for the capstone project was obtained from Kaggle.
@@ -24,7 +24,8 @@ The provider names are anonymized.   Beneficiary name, state, insurance provider
 The beneficiary, in-patient, and out-patient data were merged together and features were derived at the provider level.
 
 **Modeling**
-Three supervised model were built to predict potential fraud at the provider level.  There can be multiple doctors and claims for each provider.  Because the Kaggle dataset contained fraud labels at the provider level individual claims cannot be flagged as anomalies or suspected fraud. 
+Three supervised model were built to predict potential fraud at the provider level.  There can be multiple doctors and claims for each provider.  Because the Kaggle dataset contained fraud labels at the provider level only, individual claims cannot be flagged as anomalies or suspected fraud. 
+
 Models fit to the training data included:
 - Logistic Regression
 - Support Vector Machine
