@@ -76,13 +76,15 @@ def do_featEng(pdfLoaded):
     #--- correlated cols
 
     #--- add new features to assist with predictions
+    #--- DBL-CHECK:  new columns may be incorrectly labelled
     pdfFeatEng['ClaimReimbursement_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean') 
-    pdfFeatEng['ClaimReimbursement_AttendingPhysician'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean')
-    pdfFeatEng['ClaimReimbursement_OperatingPhysician'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean')
-
     pdfFeatEng['DeductibleAmtPaid_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['DeductibleAmtPaid'].transform('mean')
-    pdfFeatEng['DeductibleAmtPaid_AttendingPhysician'] = pdfFeatEng.groupby(['Provider'])['DeductibleAmtPaid'].transform('mean')
-    pdfFeatEng['DeductibleAmtPaid_OperatingPhysician'] = pdfFeatEng.groupby(['Provider'])['DeductibleAmtPaid'].transform('mean')
+    
+    pdfFeatEng['ClaimReimbursement_AttendingPhysician'] = pdfFeatEng.groupby(['Provider'])['IPAnnualReimbursementAmt'].transform('mean')
+    pdfFeatEng['DeductibleAmtPaid_AttendingPhysician'] = pdfFeatEng.groupby(['Provider'])['IPAnnualDeductibleAmt'].transform('mean')
+
+    pdfFeatEng['ClaimReimbursement_OperatingPhysician'] = pdfFeatEng.groupby(['Provider'])['OPAnnualReimbursementAmt'].transform('mean')
+    pdfFeatEng['DeductibleAmtPaid_OperatingPhysician'] = pdfFeatEng.groupby(['Provider'])['OPAnnualDeductibleAmt'].transform('mean')
     return pdfFeatEng
 
 
