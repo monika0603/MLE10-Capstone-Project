@@ -7,9 +7,9 @@ import uvicorn
 
 
 #--- imported route handlers
-from routes.qa.rte_qa import rteQa                  #--- for testing
 from routes.api.rte_api import rteApi               #--- for web services
 from routes.uix.rte_claims import rteClaims         #--- for streamlit UI
+from routes.qa.rte_qa import rteQa                  #--- for testing
 
 
 #--- fastAPI self doc descriptors
@@ -46,8 +46,9 @@ app = FastAPI(
 )
 
 
+#--- configure route handlers
+app.include_router(rteApi, prefix="/api")
 app.include_router(rteQa, prefix="/qa")
-
 
 #print("INFO (basePath):  ", kstrBasePath)
 

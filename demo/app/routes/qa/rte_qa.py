@@ -16,7 +16,6 @@ templRef = Jinja2Templates(directory=str(kstrPath_appRoot / "templ"))
 rteQa = APIRouter()
 
 
-
 @rteQa.get('/')
 @rteQa.get('/verif')
 def qa_entry():
