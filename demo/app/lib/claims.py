@@ -1,9 +1,9 @@
 import pandas as pd
+import lib.utils as libPaths
 #import os
 
 
-m_kstrDataPath = "./app/data/"
-
+m_kstrDataPath = libPaths.pth_data
 m_kstrPklClaims = m_kstrDataPath + 'deng_testClaims.pkl'
 #print("INFO:  ", os.getcwd())
 

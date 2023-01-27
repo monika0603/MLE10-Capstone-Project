@@ -8,7 +8,7 @@ import uvicorn
 
 #--- imported route handlers
 from routes.api.rte_api import rteApi               #--- for web services
-from routes.uix.rte_claims import rteClaims         #--- for streamlit UI
+#from routes.uix.rte_claims import rteClaims         #--- for streamlit UI
 from routes.qa.rte_qa import rteQa                  #--- for testing
 
 

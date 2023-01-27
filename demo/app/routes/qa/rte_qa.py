@@ -6,12 +6,12 @@ from pathlib import Path
 
 import lib.model as mdlClaims
 import lib.claims as libClaims
+import lib.utils as libPaths
 
 import pandas as pd
 
-kstrPath_qa = Path(__file__).resolve().parent
-kstrPath_appRoot = kstrPath_qa.parent.parent
-templRef = Jinja2Templates(directory=str(kstrPath_appRoot / "templ"))
+kstrPath_templ = libPaths.pth_templ
+templRef = Jinja2Templates(directory=str(kstrPath_templ))
 
 rteQa = APIRouter()
 
