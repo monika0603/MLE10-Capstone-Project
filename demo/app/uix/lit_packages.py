@@ -8,11 +8,14 @@ def packages():
         ary_pkg.extend(['lit_continentData',
                         'lit_countryData'
                         ])
-
+        '''
         ary_pkg.extend(['lit_claimAnalysis',
                         'lit_claimAnomalies'
                         ])
+        '''
         return ary_pkg
+
+
 
 def get_aryPkgDescr():
         #--- load list of pages to display

@@ -1,11 +1,16 @@
+#--- about page
 import streamlit as st
+import pandas as pd
+import plotly.express as px
 
-description = "Country Data"
+import lib.claims as libClaims
+
+description = "Claim Analysis"
+
 def run():
-    import pandas as pd
-    import plotly.express as px
 
-    # Countries
+
+    #--- raw claims data analysis
     df = pd.DataFrame(px.data.gapminder())
     clist = df['country'].unique()
 
@@ -20,9 +25,3 @@ def run():
     fig = px.line(df[df['country'] == country],
         x="year", y="pop", title="Population Growth")
     col2.plotly_chart(fig, use_container_width=True)
-
-
-# This code allows you to run the app standalone
-# as well as part of a library of apps
-if __name__ == "__main__":
-    run()
