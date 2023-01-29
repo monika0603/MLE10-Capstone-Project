@@ -1,4 +1,5 @@
 /demo/dkr_images/
 
 *__pycache*
+*.pyc
 
