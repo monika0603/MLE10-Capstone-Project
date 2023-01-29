@@ -35,7 +35,7 @@ def init():
         st.sidebar.markdown('Visualize Claims data Trends and Patterns over a given time span.') 
  
     #--- init select box
-    init_selectBox()
+    #init_selectBox()
 
     #--- init checkboxes
     strKey = st.sidebar.radio("Go to", list(m_aryPages.keys()))
