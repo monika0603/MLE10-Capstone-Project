@@ -12,8 +12,8 @@ import uix.pages.lit_claimAnomalies
 #--- alt define sidebar pages
 m_aryPages = {
     "Home": uix.pages.lit_about,                            #--- TODO:  update
-    "Claims": uix.pages.lit_claimAnalysis,
-    "Anomalies": uix.pages.lit_claimAnomalies,
+    "Claims Analysis": uix.pages.lit_claimAnalysis,
+    "Anomaly Detection": uix.pages.lit_claimAnomalies,
     "Model - GBC": uix.pages.lit_claimAnalysis,             #--- TODO:  update
     "Model - Txf": uix.pages.lit_claimAnalysis,             #--- TODO:  update
     "About": uix.pages.lit_about
