@@ -76,16 +76,16 @@ def do_featEng(pdfLoaded):
     #--- correlated cols
 
     #--- add new features to assist with predictions
-    #--- DBL-CHECK:  new columns may be incorrectly labelled
-    pdfFeatEng['ClaimReimbursement_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean') 
+    pdfFeatEng['InsClaimReimbursement_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean') 
     pdfFeatEng['DeductibleAmtPaid_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['DeductibleAmtPaid'].transform('mean')
     
-    pdfFeatEng['ClaimReimbursement_AttendingPhysician'] = pdfFeatEng.groupby(['Provider'])['IPAnnualReimbursementAmt'].transform('mean')
-    pdfFeatEng['DeductibleAmtPaid_AttendingPhysician'] = pdfFeatEng.groupby(['Provider'])['IPAnnualDeductibleAmt'].transform('mean')
+    pdfFeatEng['IPAnnualReimbursementAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['IPAnnualReimbursementAmt'].transform('mean')
+    pdfFeatEng['IPAnnualDeductibleAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['IPAnnualDeductibleAmt'].transform('mean')
 
-    pdfFeatEng['ClaimReimbursement_OperatingPhysician'] = pdfFeatEng.groupby(['Provider'])['OPAnnualReimbursementAmt'].transform('mean')
-    pdfFeatEng['DeductibleAmtPaid_OperatingPhysician'] = pdfFeatEng.groupby(['Provider'])['OPAnnualDeductibleAmt'].transform('mean')
+    pdfFeatEng['OPAnnualReimbursementAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['OPAnnualReimbursementAmt'].transform('mean')
+    pdfFeatEng['OPAnnualDeductibleAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['OPAnnualDeductibleAmt'].transform('mean')
     return pdfFeatEng
+
 
 
 def do_stdScaler(pdfFeatEng):
@@ -112,9 +112,7 @@ def do_stdScaler(pdfFeatEng):
     scaler = StandardScaler()
 
     #--- note:  this is a numpy.ndarray
-    X_std = scaler.fit_transform(X)                          # BUG? not sure about a refit/transform that may not match the model
-    #X_test = scaler.transform(test_final_groupby.iloc[:, 1:])  # BUG? still has provider, pot_fraud cols
-    #print(X_std)
+    X_std = scaler.transform(X)
     return X_std
 
 

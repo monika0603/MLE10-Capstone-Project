@@ -21,6 +21,26 @@ def predict(npaData):
     return predictGBC(npaData)
 
 
+#--- Unsupervised:  autoencoder
+m_kstrMdlPath_enc = kstrMdlPath + '/autoencoder_model.pkl'
+def loadEnc_fromPkl():
+    with open(m_kstrMdlPath_enc, 'rb') as filPkl:
+        # load using pickle de-serializer
+        mdlAnoms = pickle.load(filPkl)
+    return mdlAnoms
+
+
+def predictEnc(npaData):
+    #--- input:  numpy.ndarray of feature eng, and scaled data 
+    mdlAnoms = loadEnc_fromPkl()
+    npaPredict = mdlAnoms.predict(npaData)
+
+    #--- AttributeError: 'GradientBoostingClassifier' object has no attribute '_loss'
+    print("INFO (npaPredict.shape):  ", npaPredict.shape)
+    return npaPredict
+
+
+
 #--- Supervised:  Gradient Boost Classifier
 m_kstrMdlPath_gbc = kstrMdlPath + '/gbc_model.pkl'
 def trainGBC(pdfData):

@@ -8,7 +8,7 @@ import uix.lit_sidebar as litSideBar
 
 #--- streamlit:  specify title and logo
 st.set_page_config(
-            page_title='Healthcare ML Claims Anomaly Detection', 
+            page_title='Healthcare Claims - ML Anomaly Detection', 
             #page_icon='https://cdn.freebiesupply.com/logos/thumbs/1x/nvidia-logo.png', 
             layout="wide")
 st.header("Healthcare ML Claims Anomaly Detection")
