@@ -6,6 +6,13 @@ conda install pandas matplotlib ipykernel
 pip install sklearn scikit-learn fastapi uvicorn
 
 
+#--- AWS Instance
+name:   capstone-mle10-healthcare-claim-anomalies
+ssh:    port 58022
+https:  port 58443
+http:   port 58080
+
+
 #--- docker commands (local)
 docker build -t img_apiclaimanoms:dev .
 docker run -p 48300:8000 --name ctr_apiClaimAnoms img_apiclaimanoms:dev
