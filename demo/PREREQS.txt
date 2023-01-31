@@ -39,6 +39,9 @@
 - run tmux  
     - tmux new -s demo_streamlit
     - tmux new -s demo_fastapi
+    - tmux a -t <session>              #--- to attach to an existing session
+
+
 
 #--- AWS Instance
 name:   capstone-mle10-healthcare-claim-anomalies
@@ -50,7 +53,9 @@ ssh -i "capstone-mle10-imckone.pem" ec2-user@ec2-44-201-155-7.compute-1.amazonaw
 
     runtime ERRORS:
         - streamlit websocket timeout, firewall block?
-            - sed -i -e 's/,1e3/,1e4/g' -e 's/,500/,10000/g' ~/miniconda3/envs/prod_capstone/lib/python3.10/site-packages/streamlit/static/static/js/main.3c7e5310.chunk.js
+            - attempt#1 (did not work):  sed -i -e 's/,1e3/,1e4/g' -e 's/,500/,10000/g' ~/miniconda3/envs/prod_capstone/lib/python3.10/site-packages/streamlit/static/static/js/main.3c7e5310.chunk.js
+            - attempt#2:  modify MESSAGE_SIZE_LIMIT var in server_utils.py (here: .\venv\Lib\site-packages\streamlit\server\server_util.py). By default this is 50MB; to 500MB
+            - attempt#3:  increase "websocket_ping_timeout": 30, in the TORNADO_SETTINGS dictionary located in lib\site-packages\streamlit\server\server.py; from 30 seconds to 200s
 
 
 #--- docker commands (local)

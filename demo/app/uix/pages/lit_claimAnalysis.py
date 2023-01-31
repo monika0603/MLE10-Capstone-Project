@@ -6,9 +6,8 @@ import plotly.express as px
 import lib.claims as libClaims
 
 description = "Claim Analysis"
+m_kbln_traceOn = False                                  #--- enable/disable module level tracing
 
-#--- enable/disable module level tracing
-m_kbln_traceOn = True
 
 def run():
     #--- note:  in python, you need to specify global scope for fxns to access module-level variables 
@@ -21,20 +20,32 @@ def run():
         if (m_kbln_traceOn):  print("TRACE (litClaimAnalysis.run):  Initialize Page Settings ...")
         st.header("Claims Analysis")
 
-        #--- raw claims data analysis
+
+        #--- show:  raw claims data analysis
         if (m_kbln_traceOn):  print("TRACE (litClaimAnalysis.run):  Show Raw Claims Dataframe ...")
-        dfClaims = libClaims.loadPkl_testClaims()
-        st.dataframe(dfClaims)
+        dfClaims = libClaims.loadPkl_testClaims()       #--- note:  a large dataset;  reduce before render
+        dfRaw = dfClaims.sample(10)
+        st.markdown("(Sample) Raw Claims Data:  Providers, Beneficiaries, Physicians, Procedures, etc")
+        st.dataframe(dfRaw)
 
 
-        #--- bar charts
+        #--- show:  data grouped by provider
+        pdfClaimsByProvider = dfClaims.groupby(
+            by=["Provider"], as_index=False).agg(
+                {"ClaimID":"count", "InscClaimAmtReimbursed":"sum", "DeductibleAmtPaid":"sum"}
+            )    
+        st.markdown("(Sample) Raw Claims Data:  Grouped by Provider")
+        st.dataframe(pdfClaimsByProvider.sample(10))
+
+        #--- show:  bar charts
         col1, col2 = st.columns(2)
 
-        #--- $claims reimbursed by provider
+        #--- show $claims reimbursed by provider
         if (m_kbln_traceOn):  print("TRACE (litClaimAnalysis.run):  Show $claims reimbursed by provider ...")
         pdfTopClaimsByProv = dfClaims.nlargest(10, "InscClaimAmtReimbursed")
         fig = px.bar(pdfTopClaimsByProv,
             x="Provider", y="InscClaimAmtReimbursed", title="$ Claims by Provider")
+        col1.markdown("(Sample) $Claims Reimbursed by Provider")
         col1.plotly_chart(fig, use_container_width=True)
 
         #--- #claims reimbursed by provider
