@@ -93,19 +93,9 @@ def loadPkl_claims(blnIsTrain=False):
     return pdfClaims
 
 
-""" 
-def loadPkl_testClaims():
-    #--- convenience fxn to load the last processed claims data
-    strPth_pklClaims = getPath_defPklClaims(False)
-    #pdfClaims = pd.read_pickle(m_kstrPklClaims)
-    pdfClaims = pd.read_pickle(strPth_pklClaims)
-    #print("INFO (pklClaims.shape):  ", pdfClaims.shape)
-    return pdfClaims """
 
-
-def do_featEng(pdfLoaded):
+def do_featEng(pdfLoaded, blnIsTrain=False):
     #--- remove cols
-    #--- note:  remove the Potential Fraud column if it exists
     aryColsToDrop = ['BeneID', 'ClaimID', 'ClaimStartDt','ClaimEndDt','AttendingPhysician',
                      'OperatingPhysician', 'OtherPhysician', 'ClmDiagnosisCode_1',
                      'ClmDiagnosisCode_2', 'ClmDiagnosisCode_3', 'ClmDiagnosisCode_4',
@@ -124,11 +114,20 @@ def do_featEng(pdfLoaded):
 
     #--- one-hot-encoding
     pdfFeatEng = pd.get_dummies(pdfFeatEng, columns=['Gender', 'Race'], drop_first=True)
+    if (blnIsTrain):
+        #--- one-hot encode the potential fraud column (for training data only)
+        try:
+            pdfFeatEng.loc[pdfFeatEng['PotentialFraud'] == 'Yes', 'PotentialFraud'] = 1
+            pdfFeatEng.loc[pdfFeatEng['PotentialFraud'] == 'No', 'PotentialFraud'] = 0
+        except:
+            #--- likely column not found; invalid fxn call
+            print("ERROR (claims.doFeatEng):  Potential Fraud col not found")
+
     pdfFeatEng.loc[pdfFeatEng['RenalDiseaseIndicator'] == 'Y', 'RenalDiseaseIndicator'] = 1 
     pdfFeatEng['DeductibleAmtPaid'].fillna(0, inplace=True)
     pdfFeatEng['AdmittedDays'].fillna(0, inplace=True)
 
-    #--- correlated cols
+    #--- check for correlated cols
 
     #--- add new features to assist with predictions
     pdfFeatEng['InsClaimReimbursement_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean') 

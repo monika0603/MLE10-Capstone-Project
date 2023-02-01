@@ -127,11 +127,20 @@ def claims_loadTestSample(request: Request, response: Response):
 def tst_claims_featEng(request: Request, response: Response, blnIsTrain=False):
     pdfClaims = libClaims.load_claims(blnIsTrain)
     pdfFeatEng = libClaims.do_featEng(pdfClaims)
-    htmlSample = pdfFeatEng.head(50).to_html(classes='table table-striped')
 
+    lngNumRecords = m_klngMaxRecords
+    blnIsSample = True
+
+    strParamTitle = "Feature Engineered Claims - Test Data"
+    if (blnIsTrain):  strParamTitle = "Feature Engineered Claims - Training Data"
+    if (blnIsSample):  lngNumRecords = m_klngSampleSize
+        
+    htmlSample = pdfFeatEng.head(lngNumRecords).to_html(classes='table table-striped')
+    strParamTitle = strParamTitle + " (sample - top " + str(lngNumRecords) + " rows)"
+ 
     kstrTempl = 'templ_showDataframe.html'
     jsonContext = {'request': request, 
-                'paramTitle': "Feature Engineered Claims - Test Data (sample)",
+                'paramTitle': strParamTitle,
                 'paramDataframe': htmlSample}
 
     result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
