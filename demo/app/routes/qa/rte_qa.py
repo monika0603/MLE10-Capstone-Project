@@ -10,25 +10,22 @@ import lib.utils as libPaths
 
 import pandas as pd
 
-kstrPath_templ = libPaths.pth_templ
-templRef = Jinja2Templates(directory=str(kstrPath_templ))
+m_kstrPath_templ = libPaths.pth_templ
+m_templRef = Jinja2Templates(directory=str(m_kstrPath_templ))
+m_klngMaxRecords = 100
+m_klngSampleSize = 25
 
 rteQa = APIRouter()
 
 
 @rteQa.get('/')
 @rteQa.get('/verif')
-def qa_entry():
-    return {
-        "message": "For verification"
-    }
-
-
 @rteQa.get('/valid')
 def qa_entry():
     return {
-        "message": "For validation"
+        "message": "qa routing - For verification, validation"
     }
+
 
 @rteQa.get('/claims/predict/superv', response_class = HTMLResponse)
 @rteQa.get('/claims/predict/gbc', response_class = HTMLResponse)
@@ -65,53 +62,70 @@ def predict_supervised_gbc(request: Request, response: Response):
                 'paramTitle': "Loaded Claims Predictions (Gradient Boosting Classifier)",
                 'paramDataframe': htmlSample}
 
-    result = templRef.TemplateResponse(kstrTempl, jsonContext)
+    result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
     return result
 
 
-#--- get claims data; test; train; predict
-@rteQa.get('/claims/train/')
-def get_claims_train():
-    #--- load raw csv(s)
-    #--- return json
-    #--- save as pandas data frame?
-    return {
-        "message": "get claims train data"
-    }
 
+#--- get claims data and/or samples
+def claims_loadData(request: Request, response: Response, blnIsTrain=False, blnIsSample=False, blnForceCsv=False):
+ 
+    pdfClaims = libClaims.load_claims(blnIsTrain)
+    lngNumRecords = m_klngMaxRecords
 
-@rteQa.get('/claims/loadCsv/', response_class = HTMLResponse)
-def tst_claims_loadedCsv(request: Request, response: Response):
-    pdfClaims = libClaims.loadCsv_testClaims()
-    pdfSample = pdfClaims.head(50)
-    htmlSample = pdfSample.to_html(classes='table table-striped')
-
+    strParamTitle = "Claims - Test Data"
+    if (blnIsTrain):  strParamTitle = "Claims - Training Data"
+    if (blnIsSample):  lngNumRecords = m_klngSampleSize
+        
+    strParamTitle = strParamTitle + " (merged sample - top " + str(lngNumRecords) + " rows)"
+    pdfClaims = pdfClaims.head(lngNumRecords)
+    htmlClaims = pdfClaims.to_html(classes='table table-striped')
     kstrTempl = 'templ_showDataframe.html'
     jsonContext = {'request': request, 
-                'paramTitle': "Loaded Claims - Test Data (merged sample csv)",
-                'paramDataframe': htmlSample}
-
-    result = templRef.TemplateResponse(kstrTempl, jsonContext)
+                'paramTitle': strParamTitle,
+                'paramDataframe': htmlClaims
+            }
+    result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
     return result
 
 
-@rteQa.get('/claims/loadPkl/', response_class = HTMLResponse)
-def tst_claims_loadedPkl(request: Request, response: Response):
-    pdfClaims = libClaims.loadPkl_testClaims()
-    htmlSample = pdfClaims.head(50).to_html(classes='table table-striped')
 
-    kstrTempl = 'templ_showDataframe.html'
-    jsonContext = {'request': request, 
-                'paramTitle': "Loaded Claims - Test Data (merged sample pkl)",
-                'paramDataframe': htmlSample}
+@rteQa.get('/claims/data/loadCsv/', response_class = HTMLResponse)
+def claims_loadCsv(request: Request, response: Response):
+    #--- forces a reload of csv's in case a refresh is required
+    pdfClaims = libClaims.load_claims(False, True)
+    pdfClaims = libClaims.load_claims(True, True)
+    return claims_loadData(request, response, True,False)
 
-    result = templRef.TemplateResponse(kstrTempl, jsonContext)
-    return result
+
+
+@rteQa.get('/claims/data/train/', response_class = HTMLResponse)
+def claims_loadTrainData(request: Request, response: Response, blnIsSample=False):
+    return claims_loadData(request, response, True, blnIsSample)
+
+
+
+@rteQa.get('/claims/data/train/sample', response_class = HTMLResponse)
+def claims_loadTrainSample(request: Request, response: Response):
+    return claims_loadTrainData(request, response, True)
+
+
+
+@rteQa.get('/claims/data/test/', response_class = HTMLResponse)
+def claims_loadTestData(request: Request, response: Response, blnIsSample=False):
+    return claims_loadData(request, response, False, blnIsSample)
+
+
+
+@rteQa.get('/claims/data/test/sample', response_class = HTMLResponse)
+def claims_loadTestSample(request: Request, response: Response):
+    return claims_loadTestData(request, response, True)
+
 
 
 @rteQa.get('/claims/doFeatEng/', response_class = HTMLResponse)
-def tst_claims_featEng(request: Request, response: Response):
-    pdfClaims = libClaims.loadPkl_testClaims()
+def tst_claims_featEng(request: Request, response: Response, blnIsTrain=False):
+    pdfClaims = libClaims.load_claims(blnIsTrain)
     pdfFeatEng = libClaims.do_featEng(pdfClaims)
     htmlSample = pdfFeatEng.head(50).to_html(classes='table table-striped')
 
@@ -120,7 +134,7 @@ def tst_claims_featEng(request: Request, response: Response):
                 'paramTitle': "Feature Engineered Claims - Test Data (sample)",
                 'paramDataframe': htmlSample}
 
-    result = templRef.TemplateResponse(kstrTempl, jsonContext)
+    result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
     return result
 
 
@@ -137,5 +151,5 @@ def tst_claims_stdScaling(request: Request, response: Response):
                 'paramTitle': "Scaled Claims - Test Data (sample)",
                 'paramDataframe': htmlSample}
 
-    result = templRef.TemplateResponse(kstrTempl, jsonContext)
+    result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
     return result
