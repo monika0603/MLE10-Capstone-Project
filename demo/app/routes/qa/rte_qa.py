@@ -124,9 +124,9 @@ def claims_loadTestSample(request: Request, response: Response):
 
 
 @rteQa.get('/claims/doFeatEng/', response_class = HTMLResponse)
-def tst_claims_featEng(request: Request, response: Response, blnIsTrain=False):
+def claims_featEng(request: Request, response: Response, blnIsTrain=False):
     pdfClaims = libClaims.load_claims(blnIsTrain)
-    pdfFeatEng = libClaims.do_featEng(pdfClaims)
+    pdfFeatEng = libClaims.do_featEng(pdfClaims, blnIsTrain)
 
     lngNumRecords = m_klngMaxRecords
     blnIsSample = True
@@ -147,18 +147,53 @@ def tst_claims_featEng(request: Request, response: Response, blnIsTrain=False):
     return result
 
 
+
+@rteQa.get('/claims/doFeatEng/train', response_class = HTMLResponse)
+def claims_featEngTrain(request: Request, response: Response):
+    return claims_featEng(request, response, True)
+
+
+
+@rteQa.get('/claims/doFeatEng/test', response_class = HTMLResponse)
+def claims_featEngTest(request: Request, response: Response):
+    return claims_featEng(request, response, False)
+
+
+
 @rteQa.get('/claims/doStdScaling/', response_class = HTMLResponse)
-def tst_claims_stdScaling(request: Request, response: Response):
-    pdfClaims = libClaims.loadPkl_testClaims()
-    pdfFeatEng = libClaims.do_featEng(pdfClaims)
-    pdfScaled = libClaims.do_stdScaler_toPdf(pdfFeatEng)
+def claims_stdScaling(request: Request, response: Response, blnIsTrain=False):
+    pdfClaims = libClaims.load_claims(blnIsTrain)
+    pdfFeatEng = libClaims.do_featEng(pdfClaims, blnIsTrain)
+    npaScaled = libClaims.do_stdScaler(pdfFeatEng, blnIsTrain)
+    pdfScaled = libClaims.do_stdScaler_toPdf(npaScaled)
 
-    htmlSample = pdfScaled.head(50).to_html(classes='table table-striped')
+    lngNumRecords = m_klngMaxRecords
+    blnIsSample = True
 
+    strParamTitle = "Std Scaled Claims - Test Data"
+    if (blnIsTrain):  strParamTitle = "Std Scaled Claims - Training Data"
+    if (blnIsSample):  lngNumRecords = m_klngSampleSize
+        
+    htmlSample = pdfFeatEng.head(lngNumRecords).to_html(classes='table table-striped')
+    strParamTitle = strParamTitle + " (sample - top " + str(lngNumRecords) + " rows)"
+ 
     kstrTempl = 'templ_showDataframe.html'
     jsonContext = {'request': request, 
-                'paramTitle': "Scaled Claims - Test Data (sample)",
+                'paramTitle': strParamTitle,
                 'paramDataframe': htmlSample}
 
     result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
     return result
+
+
+@rteQa.get('/claims/doStdScaling/train', response_class = HTMLResponse)
+def claims_stdScalingTrain(request: Request, response: Response):
+    return claims_stdScaling(request, response, True)
+
+
+
+@rteQa.get('/claims/doStdScaling/test', response_class = HTMLResponse)
+def claims_stdScalingTest(request: Request, response: Response):
+    return claims_stdScaling(request, response, False)
+
+

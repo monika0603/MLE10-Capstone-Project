@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier
 import joblib
+import lib.utils as libPaths
 #from pickle import load, dump
 from pathlib import Path
 import pickle
@@ -8,6 +9,9 @@ import pickle
 
 kstrBasePath = Path(__file__).resolve().parent.parent
 kstrMdlPath = str(kstrBasePath / "model/")
+
+m_kstrDataPath = libPaths.pth_data
+m_kstrModelPath = libPaths.pth_model
 
 
 #--- default methods
@@ -43,6 +47,35 @@ def predictEnc(npaData):
 
 #--- Supervised:  Gradient Boost Classifier
 m_kstrMdlPath_gbc = kstrMdlPath + '/gbc_model.pkl'
+def fit_stdScaler(pdfData, blnIsTrain=False):
+    #--- apply scaler
+    #--- WARN:  scaling is also grouped by provider
+    from sklearn.preprocessing import StandardScaler
+
+    #--- note:  this is a numpy.ndarray
+    #--- we need to fit the scaler, and then save as a pkl file
+    strScalerPath = m_kstrModelPath + "gbc_scaler.pkl"
+    print("INFO (lib.model.fit_stdScalar):  ", strScalerPath)
+    if (blnIsTrain):
+        scaler = StandardScaler()
+        sclFit = scaler.fit(pdfData)
+        with open(strScalerPath, 'wb') as filPkl:
+            pickle.dump(sclFit, filPkl)
+    else:
+        #--- we need to load the pkl file
+        with open(strScalerPath, 'rb') as filPkl:
+            sclFit = pickle.load(filPkl)
+    return sclFit
+
+
+
+def fit_txfStdScaler(pdfData, blnIsTrain=False):
+    from sklearn.preprocessing import StandardScaler
+    sclFit = fit_stdScaler(pdfData, blnIsTrain)
+    X_std = sclFit.transform(pdfData)
+    return X_std
+
+
 def trainGBC(pdfData):
     mdlAnoms = GradientBoostingClassifier()
     mdlAnoms.fit(pdfData.values)
