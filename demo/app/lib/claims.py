@@ -1,13 +1,13 @@
 import pandas as pd
 import lib.utils as libPaths
-#import os
-
-#print("INFO:  ", os.getcwd())
+import lib.model as libModels
 
 
 #--- load, merge data from file
 m_kstrDataPath = libPaths.pth_data
-#def loadCsv_trainData():
+m_kstrModelPath = libPaths.pth_model
+
+
 def getPath_defPklClaims(blnIsTrain=False):
     global m_kstrDataPath
     strPrefix="test_"
@@ -95,6 +95,7 @@ def loadPkl_claims(blnIsTrain=False):
 
 
 def do_featEng(pdfLoaded, blnIsTrain=False):
+    print("INFO (claims.doFeatEng):  blnIsTrain, ", blnIsTrain)
     #--- remove cols
     aryColsToDrop = ['BeneID', 'ClaimID', 'ClaimStartDt','ClaimEndDt','AttendingPhysician',
                      'OperatingPhysician', 'OtherPhysician', 'ClmDiagnosisCode_1',
@@ -117,9 +118,10 @@ def do_featEng(pdfLoaded, blnIsTrain=False):
     if (blnIsTrain):
         #--- one-hot encode the potential fraud column (for training data only)
         try:
+            #print("INFO (claims.doFeatEng):  one-hot encoding potential fraud")
             pdfFeatEng.loc[pdfFeatEng['PotentialFraud'] == 'Yes', 'PotentialFraud'] = 1
             pdfFeatEng.loc[pdfFeatEng['PotentialFraud'] == 'No', 'PotentialFraud'] = 0
-        except:
+        except KeyError:
             #--- likely column not found; invalid fxn call
             print("ERROR (claims.doFeatEng):  Potential Fraud col not found")
 
@@ -142,7 +144,25 @@ def do_featEng(pdfLoaded, blnIsTrain=False):
 
 
 
-def do_stdScaler(pdfFeatEng):
+def do_stdScaler(pdfFeatEng, blnIsTrain=False):
+    print("INFO (claims.do_stdScaler):  blnIsTrain, ", blnIsTrain)
+    #pdfSample = pdfFeatEng.sample(10)
+    #print(pdfSample)
+
+    #--- identify which cols are non-numeric cols;  
+    #pdfAllCols = pdfSample.columns
+    #pdfNumericCols = pdfSample._get_numeric_data().columns
+    #pdfNonNumericCols = list(set(pdfAllCols) - set(pdfNumericCols))
+    #print("INFO: Non-numericCols ", pdfNonNumericCols)
+    #print("INFO:  NumericCols", pdfNumericCols)
+    #print("INFO:  NumericalCols", pdfSample.select_dtypes(exclude=['object']).columns.tolist())
+    #print("INFO: CategoricalCols ", pdfSample.select_dtypes(include=['object']).columns.tolist())
+#
+    #print("INFO: dtypes ", pdfSample.dtypes)
+
+    #--- fix non-numeric cols
+
+
     #--- Note:  prediction runs on X_val
     '''
     #--- WARN:  The default value of numeric_only in DataFrameGroupBy.sum is deprecated. 
@@ -152,21 +172,27 @@ def do_stdScaler(pdfFeatEng):
 
     #--- WARN:  this code groups all data by provider;  any predictions will also be by provider
     pdfGroupBy = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
+    #print(pdfGroupBy)
+    #print(pdfGroupBy.columns)
+    X = pdfGroupBy
+
+
     try:
-        X = pdfGroupBy.drop(columns=['Provider', 'PotentialFraud'], axis=1)
+        X = X.drop(columns=['Provider'], axis=1)
     except KeyError:
-        #--- catch:  there is no 'PotentialFraud' column
-        X = pdfGroupBy.drop(columns=['Provider'], axis=1)
+        #--- likely column not found; invalid fxn call
+        print("ERROR (claims.do_stdScaler):  Provider col not found")
 
-    #print("INFO:  ", X.columns)
+    try:
+        X = X.drop(columns=['PotentialFraud'], axis=1)
+    except KeyError:
+        #--- likely column not found; invalid fxn call
+        print("ERROR (claims.do_stdScaler):  Potential Fraud col not found")
 
-    #--- apply scaler
+
+    #--- apply std scaler
     #--- WARN:  scaling is also grouped by provider
-    from sklearn.preprocessing import StandardScaler
-    scaler = StandardScaler()
-
-    #--- note:  this is a numpy.ndarray
-    X_std = scaler.transform(X)
+    X_std = libModels.fit_txfStdScaler(X, blnIsTrain)
     return X_std
 
 
@@ -193,6 +219,7 @@ def do_stdScaler_toPdf(npaScaled):
     return pdfScaled
 
 
+
 #--- data eng on inpatient data
 def prep_inpatData(pdfInpat):
     #--- calc admitted days
@@ -200,6 +227,7 @@ def prep_inpatData(pdfInpat):
     pdfInpat['DischargeDt'] = pd.to_datetime(pdfInpat['DischargeDt'], format='%Y-%m-%d')
     pdfInpat['AdmittedDays'] = round((pdfInpat['DischargeDt'] - pdfInpat['AdmissionDt']).dt.days + 1)
     return pdfInpat
+
 
 
 #--- data eng on beneficiary data
