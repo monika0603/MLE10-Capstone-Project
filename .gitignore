@@ -1,5 +1,7 @@
 /demo/dkr_images/
 /demo/app/data/*.pkl
+app/uix/pages/__pycache__/
+
 
 # private, sensitive files
 *.pem
