@@ -2,50 +2,105 @@ import pandas as pd
 import lib.utils as libPaths
 #import os
 
-
-m_kstrDataPath = libPaths.pth_data
-m_kstrPklClaims = m_kstrDataPath + 'deng_testClaims.pkl'
 #print("INFO:  ", os.getcwd())
 
 
 #--- load, merge data from file
+m_kstrDataPath = libPaths.pth_data
 #def loadCsv_trainData():
+def getPath_defPklClaims(blnIsTrain=False):
+    global m_kstrDataPath
+    strPrefix="test_"
+    if (blnIsTrain):  strPrefix = "train_"
+    strPth_pklClaims = m_kstrDataPath + strPrefix + 'claims.pkl'
+    return strPth_pklClaims
+
+
+#--- initialize paths
+m_kstrPklClaims = m_kstrDataPath + 'deng_testClaims.pkl'
+m_kstrPth_pklClaims = getPath_defPklClaims(blnIsTrain=False)
+
+
+
+def load_claims(blnIsTrain=False, blnForceCsv=False):
+    if (blnForceCsv):  
+        pdfClaims = loadCsv_claims(blnIsTrain)
+    else:
+        pdfClaims = loadPkl_claims(blnIsTrain)
+    return pdfClaims
+
+
+
+def loadCsv_claims(blnIsTrain=False):
+    global m_kstrDataPath
+    #--- load all csv test data
+    if (blnIsTrain):
+        print("INFO (loadCsv_claimsData):  load train data ...")
+        strPthProvider = m_kstrDataPath + 'Train-1542865627584.csv'
+        strPthBenef = m_kstrDataPath + 'Train_Beneficiarydata-1542865627584.csv'
+        strPthInpat = m_kstrDataPath + 'Train_Inpatientdata-1542865627584.csv'
+        strPthOutpat = m_kstrDataPath + 'Train_Outpatientdata-1542865627584.csv'
+    else:
+        print("INFO (loadCsv_claimsData):  load test data ...")
+        strPthProvider = m_kstrDataPath + 'Test-1542969243754.csv'
+        strPthBenef = m_kstrDataPath + 'Test_Beneficiarydata-1542969243754.csv'
+        strPthInpat = m_kstrDataPath + 'Test_Inpatientdata-1542969243754.csv'
+        strPthOutpat = m_kstrDataPath + 'Test_Outpatientdata-1542969243754.csv'
+    
+    #--- output:  pandas data frame
+    pdfProvider = pd.read_csv(strPthProvider) 
+    pdfBenef = pd.read_csv(strPthBenef)
+    pdfInpat = pd.read_csv(strPthInpat)
+    pdfOutpat = pd.read_csv(strPthOutpat) 
+
+    #--- data engineering 
+    pdfBenef = prep_benefData(pdfBenef)
+    pdfInpat = prep_inpatData(pdfInpat)
+
+    #--- merge inpatient and outpatient data (assert: 31 cols)
+    aryMergeCols = list(pdfOutpat.columns)
+    pdfAllpat = pdfInpat.merge(pdfOutpat, on=aryMergeCols, how='outer')
+
+    #--- +merge beneficiary data
+    pdfAllPatBenef = pdfAllpat.merge(pdfBenef, on='BeneID', how='inner')
+
+    #--- +merge provider data
+    pdfAllPatBenefProv = pdfAllPatBenef.merge(pdfProvider, on='Provider', how='inner')
+    
+    #--- export data
+    strPth_pklClaims = getPath_defPklClaims(blnIsTrain)
+    print("TRACE (claims.loadCsv_claims):  pkl claim data file path ... ", strPth_pklClaims)
+    pdfAllPatBenefProv.to_pickle(strPth_pklClaims)
+
+    #print("INFO (csvClaims.shape):  ", pdfTest_allPatBenefProv.shape)
+    return pdfAllPatBenefProv
+
 
 def loadCsv_testClaims():
     #--- TODO:  make optional arg test or train data
-
-    #--- load all csv test data
-    #--- ouput:  pandas data frame
-    pdfTest_provider = pd.read_csv(m_kstrDataPath + 'Test-1542969243754.csv') 
-    pdfTest_benef = pd.read_csv(m_kstrDataPath + 'Test_Beneficiarydata-1542969243754.csv')
-    pdfTest_inpat = pd.read_csv(m_kstrDataPath + 'Test_Inpatientdata-1542969243754.csv')
-    pdfTest_outpat = pd.read_csv(m_kstrDataPath + 'Test_Outpatientdata-1542969243754.csv') 
-
-    #--- data engineering 
-    pdfTest_benef = prep_benefData(pdfTest_benef)
-    pdfTest_inpat = prep_inpatData(pdfTest_inpat)
-
-    #--- merge inpatient and outpatient data (assert: 31 cols)
-    aryMergeCols = list(pdfTest_outpat.columns)
-    pdfTest_allpat = pdfTest_inpat.merge(pdfTest_outpat, on=aryMergeCols, how='outer')
-
-    #--- +merge beneficiary data
-    pdfTest_allPatBenef = pdfTest_allpat.merge(pdfTest_benef, on='BeneID', how='inner')
-
-    #--- +merge provider data
-    pdfTest_allPatBenefProv = pdfTest_allPatBenef.merge(pdfTest_provider, on='Provider', how='inner')
-    
-    pdfTest_allPatBenefProv.to_pickle(m_kstrPklClaims)
-
-    print("INFO (csvClaims.shape):  ", pdfTest_allPatBenefProv.shape)
-    return pdfTest_allPatBenefProv
+    return loadCsv_claims(False)
 
 
+
+def loadPkl_claims(blnIsTrain=False):
+    strPth_pklClaims = getPath_defPklClaims(blnIsTrain)
+    try:
+        pdfClaims = pd.read_pickle(strPth_pklClaims)
+    except FileNotFoundError:
+        #--- catch:  there is no pickle file
+        #--- load from csv instead;  will create pkl files for next time
+        pdfClaims = loadCsv_claims(blnIsTrain)
+    return pdfClaims
+
+
+""" 
 def loadPkl_testClaims():
     #--- convenience fxn to load the last processed claims data
-    pdfClaims = pd.read_pickle(m_kstrPklClaims)
-    print("INFO (pklClaims.shape):  ", pdfClaims.shape)
-    return pdfClaims
+    strPth_pklClaims = getPath_defPklClaims(False)
+    #pdfClaims = pd.read_pickle(m_kstrPklClaims)
+    pdfClaims = pd.read_pickle(strPth_pklClaims)
+    #print("INFO (pklClaims.shape):  ", pdfClaims.shape)
+    return pdfClaims """
 
 
 def do_featEng(pdfLoaded):
