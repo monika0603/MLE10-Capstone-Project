@@ -132,7 +132,7 @@ def do_featEng(pdfLoaded, blnIsTrain=False):
     #--- check for correlated cols
 
     #--- add new features to assist with predictions
-    pdfFeatEng['InsClaimReimbursement_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean') 
+    pdfFeatEng['InscClaimReimbursement_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean') 
     pdfFeatEng['DeductibleAmtPaid_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['DeductibleAmtPaid'].transform('mean')
     
     pdfFeatEng['IPAnnualReimbursementAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['IPAnnualReimbursementAmt'].transform('mean')
@@ -146,22 +146,6 @@ def do_featEng(pdfLoaded, blnIsTrain=False):
 
 def do_stdScaler(pdfFeatEng, blnIsTrain=False):
     print("INFO (claims.do_stdScaler):  blnIsTrain, ", blnIsTrain)
-    #pdfSample = pdfFeatEng.sample(10)
-    #print(pdfSample)
-
-    #--- identify which cols are non-numeric cols;  
-    #pdfAllCols = pdfSample.columns
-    #pdfNumericCols = pdfSample._get_numeric_data().columns
-    #pdfNonNumericCols = list(set(pdfAllCols) - set(pdfNumericCols))
-    #print("INFO: Non-numericCols ", pdfNonNumericCols)
-    #print("INFO:  NumericCols", pdfNumericCols)
-    #print("INFO:  NumericalCols", pdfSample.select_dtypes(exclude=['object']).columns.tolist())
-    #print("INFO: CategoricalCols ", pdfSample.select_dtypes(include=['object']).columns.tolist())
-#
-    #print("INFO: dtypes ", pdfSample.dtypes)
-
-    #--- fix non-numeric cols
-
 
     #--- Note:  prediction runs on X_val
     '''
@@ -172,8 +156,6 @@ def do_stdScaler(pdfFeatEng, blnIsTrain=False):
 
     #--- WARN:  this code groups all data by provider;  any predictions will also be by provider
     pdfGroupBy = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
-    #print(pdfGroupBy)
-    #print(pdfGroupBy.columns)
     X = pdfGroupBy
 
 
@@ -255,3 +237,82 @@ def prep_benefData(pdfBenef):
     pdfBenef.loc[pdfBenef['DOD'].notna(), 'DeadOrNot'] = 1 
 
     return pdfBenef
+
+
+
+def get_logrPredict(pdfTestClaims):
+
+    #--- logistic regression predictions;  load test data
+    pdfClaims = pdfTestClaims
+    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+
+    pdfFeatEng = do_featEng(pdfClaims, False)
+    npaScaled = do_stdScaler(pdfFeatEng, False)
+    pdfScaled = do_stdScaler_toPdf(npaScaled)
+    #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
+
+    ndaPredict = libModels.predictLogR(npaScaled)
+    #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
+
+    pdfPredict = pd.DataFrame(ndaPredict)
+    #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+
+    #--- stitch the grouped data with the labels
+    pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
+    #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
+
+    pdfResults.insert(0, "hasAnom?", pdfPredict[0])
+    return pdfResults    
+
+
+
+def get_svmPredict(pdfTestClaims):
+
+    #--- support vector machine predictions;  load test data
+    pdfClaims = pdfTestClaims
+    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+
+    pdfFeatEng = do_featEng(pdfClaims, False)
+    npaScaled = do_stdScaler(pdfFeatEng, False)
+    pdfScaled = do_stdScaler_toPdf(npaScaled)
+    #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
+
+    ndaPredict = libModels.predictSVM(npaScaled)
+    #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
+
+    pdfPredict = pd.DataFrame(ndaPredict)
+    #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+
+    #--- stitch the grouped data with the labels
+    pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
+    #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
+
+    pdfResults.insert(0, "hasAnom?", pdfPredict[0])
+    return pdfResults    
+
+
+
+
+def get_gbcPredict(pdfTestClaims):
+
+    #--- load test data
+    pdfClaims = pdfTestClaims
+    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+
+    pdfFeatEng = do_featEng(pdfClaims, False)
+    npaScaled = do_stdScaler(pdfFeatEng, False)
+    pdfScaled = do_stdScaler_toPdf(npaScaled)
+    #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
+
+    ndaPredict = libModels.predictGBC(npaScaled)
+    #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
+
+    pdfPredict = pd.DataFrame(ndaPredict)
+    #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+
+    #--- stitch the grouped data with the labels
+    pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
+    #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
+
+    pdfResults.insert(0, "hasAnom?", pdfPredict[0])
+    return pdfResults

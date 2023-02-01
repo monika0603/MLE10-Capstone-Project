@@ -17,6 +17,22 @@ m_klngSampleSize = 25
 
 rteQa = APIRouter()
 
+def get_jinja2Templ(request: Request, pdfResults, strParamTitle, lngNumRecords, blnIsTrain=False, blnIsSample=False):
+    lngNumRecords = min(lngNumRecords, m_klngMaxRecords)
+    if (blnIsTrain):  strParamTitle = strParamTitle + " - Training Data"
+    if (not blnIsTrain):  strParamTitle = strParamTitle + " - Test Data"
+    if (blnIsSample):  lngNumRecords = m_klngSampleSize
+    if (blnIsSample):  strParamTitle = strParamTitle + " - max " + str(lngNumRecords) + " sample rows)"
+
+    pdfClaims = pdfResults.head(lngNumRecords)
+    htmlClaims = pdfClaims.to_html(classes='table table-striped')
+    kstrTempl = 'templ_showDataframe.html'
+    jsonContext = {'request': request, 
+                'paramTitle': strParamTitle,
+                'paramDataframe': htmlClaims
+            }
+    result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
+    return result
 
 @rteQa.get('/')
 @rteQa.get('/verif')
@@ -27,66 +43,15 @@ def qa_entry():
     }
 
 
-@rteQa.get('/claims/predict/superv', response_class = HTMLResponse)
-@rteQa.get('/claims/predict/gbc', response_class = HTMLResponse)
-def predict_supervised_gbc(request: Request, response: Response):
-    #--- load test data
-    pdfClaims = libClaims.loadPkl_testClaims()
-    print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
 
-    pdfFeatEng = libClaims.do_featEng(pdfClaims)
-    print("INFO (predict.pdfFeatEng.shape):  ", pdfFeatEng.shape)
-
-    npaScaled = libClaims.do_stdScaler(pdfFeatEng)
-    pdfScaled = libClaims.do_stdScaler_toPdf(npaScaled)
-    print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
-
-    ndaPredict = mdlClaims.predict(npaScaled)
-    print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
-
-    pdfPredict = pd.DataFrame(ndaPredict)
-    print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
-
-    #--- stitch the grouped data with the labels
-    pdfResults = pdfScaled.copy()
-    pdfResults.insert(0, "hasAnom?", pdfPredict[0])
-
-    #--- filter to only those rows that are flagged with an anomaly
-    pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
-
-    #htmlSample = pdfPredict.head(50).to_html(classes='table table-striped')
-    htmlSample = pdfResults.head(50).to_html(classes='table table-striped')
-
-    kstrTempl = 'templ_showDataframe.html'
-    jsonContext = {'request': request, 
-                'paramTitle': "Loaded Claims Predictions (Gradient Boosting Classifier)",
-                'paramDataframe': htmlSample}
-
-    result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
-    return result
-
-
-
-#--- get claims data and/or samples
+#--- get claims data
 def claims_loadData(request: Request, response: Response, blnIsTrain=False, blnIsSample=False, blnForceCsv=False):
  
     pdfClaims = libClaims.load_claims(blnIsTrain)
     lngNumRecords = m_klngMaxRecords
+    strParamTitle = "Claims"
 
-    strParamTitle = "Claims - Test Data"
-    if (blnIsTrain):  strParamTitle = "Claims - Training Data"
-    if (blnIsSample):  lngNumRecords = m_klngSampleSize
-        
-    strParamTitle = strParamTitle + " (merged sample - top " + str(lngNumRecords) + " rows)"
-    pdfClaims = pdfClaims.head(lngNumRecords)
-    htmlClaims = pdfClaims.to_html(classes='table table-striped')
-    kstrTempl = 'templ_showDataframe.html'
-    jsonContext = {'request': request, 
-                'paramTitle': strParamTitle,
-                'paramDataframe': htmlClaims
-            }
-    result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
-    return result
+    return get_jinja2Templ(request, pdfClaims, strParamTitle, lngNumRecords, blnIsTrain, blnIsSample)
 
 
 
@@ -131,20 +96,9 @@ def claims_featEng(request: Request, response: Response, blnIsTrain=False):
     lngNumRecords = m_klngMaxRecords
     blnIsSample = True
 
-    strParamTitle = "Feature Engineered Claims - Test Data"
-    if (blnIsTrain):  strParamTitle = "Feature Engineered Claims - Training Data"
-    if (blnIsSample):  lngNumRecords = m_klngSampleSize
-        
-    htmlSample = pdfFeatEng.head(lngNumRecords).to_html(classes='table table-striped')
-    strParamTitle = strParamTitle + " (sample - top " + str(lngNumRecords) + " rows)"
- 
-    kstrTempl = 'templ_showDataframe.html'
-    jsonContext = {'request': request, 
-                'paramTitle': strParamTitle,
-                'paramDataframe': htmlSample}
+    strParamTitle = "Feature Engineered Claims"
 
-    result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
-    return result
+    return get_jinja2Templ(request, pdfFeatEng, strParamTitle, lngNumRecords, blnIsTrain, True)
 
 
 
@@ -170,20 +124,9 @@ def claims_stdScaling(request: Request, response: Response, blnIsTrain=False):
     lngNumRecords = m_klngMaxRecords
     blnIsSample = True
 
-    strParamTitle = "Std Scaled Claims - Test Data"
-    if (blnIsTrain):  strParamTitle = "Std Scaled Claims - Training Data"
-    if (blnIsSample):  lngNumRecords = m_klngSampleSize
-        
-    htmlSample = pdfFeatEng.head(lngNumRecords).to_html(classes='table table-striped')
-    strParamTitle = strParamTitle + " (sample - top " + str(lngNumRecords) + " rows)"
- 
-    kstrTempl = 'templ_showDataframe.html'
-    jsonContext = {'request': request, 
-                'paramTitle': strParamTitle,
-                'paramDataframe': htmlSample}
+    strParamTitle = "Std Scaled Claims"
+    return get_jinja2Templ(request, pdfScaled, strParamTitle, lngNumRecords, blnIsTrain, blnIsSample)
 
-    result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
-    return result
 
 
 @rteQa.get('/claims/doStdScaling/train', response_class = HTMLResponse)
@@ -197,3 +140,53 @@ def claims_stdScalingTest(request: Request, response: Response):
     return claims_stdScaling(request, response, False)
 
 
+
+@rteQa.get('/claims/predict/superv', response_class = HTMLResponse)
+@rteQa.get('/claims/predict/gbc', response_class = HTMLResponse)
+def predict_supervised_gbc(request: Request, response: Response):
+    
+    #--- load test data
+    #--- filter to only those rows that are flagged with an anomaly
+    pdfClaims = libClaims.load_claims(False)
+    pdfResults = libClaims.get_gbcPredict(pdfClaims)
+    pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
+
+    lngNumRecords = m_klngMaxRecords
+    blnIsSample = True
+    strParamTitle = "Loaded Claims Predictions (Gradient Boosting Classifier)"
+
+    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, True)
+
+
+
+@rteQa.get('/claims/predict/lgr', response_class = HTMLResponse)
+def predict_supervised_lgr(request: Request, response: Response):
+    
+    #--- load test data
+    #--- filter to only those rows that are flagged with an anomaly
+    pdfClaims = libClaims.load_claims(False)
+    pdfResults = libClaims.get_logrPredict(pdfClaims)
+    pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
+
+    lngNumRecords = m_klngMaxRecords
+    blnIsSample = True
+    strParamTitle = "Loaded Claims Predictions (Logistic Regression)"
+
+    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, True)
+
+
+
+@rteQa.get('/claims/predict/svm', response_class = HTMLResponse)
+def predict_supervised_svm(request: Request, response: Response):
+    
+    #--- load test data
+    #--- filter to only those rows that are flagged with an anomaly
+    pdfClaims = libClaims.load_claims(False)
+    pdfResults = libClaims.get_logrPredict(pdfClaims)
+    pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
+
+    lngNumRecords = m_klngMaxRecords
+    blnIsSample = True
+    strParamTitle = "Loaded Claims Predictions (Support Vector Machines)"
+
+    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, True)
