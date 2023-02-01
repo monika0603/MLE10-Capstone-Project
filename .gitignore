@@ -1,5 +1,5 @@
 /demo/dkr_images/
-
+/demo/app/data/*.pkl
 
 # private, sensitive files
 *.pem
