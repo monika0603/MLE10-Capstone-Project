@@ -5,8 +5,11 @@ pth_appRoot = pth_pwd.parent
 
 pth_root = str(pth_appRoot) + "/"
 pth_api = pth_root + "api/"
+pth_bin = pth_root + "bin/"
+pth_binModels = pth_root + "bin/models/"
 pth_data = pth_root + "data/"
 pth_lib = pth_root + "lib/"
+pth_libModels = pth_root + "models/"
 pth_model = pth_root + "model/"
 pth_qa = pth_root + "qa/"
 pth_routes = pth_root + "routes/"

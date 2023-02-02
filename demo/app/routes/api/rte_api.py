@@ -5,16 +5,17 @@ import pandas as pd
 import json
 
 import lib.claims as libClaims
-import lib.model as mdlClaims
+from lib.models import mdl_utils, mdl_xgb
 
 
 rteApi = APIRouter()
+
 
 #--- return json for claims data (merged)
 #--- note:  current is kaggle, but future could include from yyyymm filter
 @rteApi.get('/claims', response_class = JSONResponse)
 def api_getClaims(request: Request, response: Response):
-    pdfClaims = libClaims.loadPkl_testClaims()
+    pdfClaims = libClaims.load_claims()
     jsonSample = pdfClaims.head(50).to_json(orient="records", indent=4)
     result = json.loads(jsonSample)
     return result
@@ -23,7 +24,7 @@ def api_getClaims(request: Request, response: Response):
 #--- return json for featEng
 @rteApi.get('/claims/doFeatEng/', response_class = JSONResponse)
 def tst_claims_featEng():
-    pdfClaims = libClaims.loadPkl_testClaims()
+    pdfClaims = libClaims.load_claims()
     pdfFeatEng = libClaims.do_featEng(pdfClaims)
     jsonSample = pdfClaims.head(50).to_json(orient="records", indent=4)
     result = json.loads(jsonSample)
@@ -32,9 +33,9 @@ def tst_claims_featEng():
 
 @rteApi.get('/claims/doStdScaling/', response_class = JSONResponse)
 def tst_claims_stdScaling():
-    pdfClaims = libClaims.loadPkl_testClaims()
+    pdfClaims = libClaims.load_claims()
     pdfFeatEng = libClaims.do_featEng(pdfClaims)
-    pdfScaled = libClaims.do_stdScaler_toPdf(pdfFeatEng)
+    pdfScaled = mdl_utils.do_stdScaler_toPdf(pdfFeatEng)
 
     jsonSample = pdfClaims.head(50).to_json(orient="records", indent=4)
     result = json.loads(jsonSample)
@@ -42,16 +43,16 @@ def tst_claims_stdScaling():
 
 
 @rteApi.get('/claims/predict/superv', response_class = JSONResponse)
-@rteApi.get('/claims/predict/gbc', response_class = JSONResponse)
-def predict_supervised_gbc():
+@rteApi.get('/claims/predict/xgb', response_class = JSONResponse)
+def predict_xgb():
     #--- load test data
-    pdfClaims = libClaims.loadPkl_testClaims()
+    pdfClaims = libClaims.load_claims()
     pdfFeatEng = libClaims.do_featEng(pdfClaims)
 
-    npaScaled = libClaims.do_stdScaler(pdfFeatEng)
-    pdfScaled = libClaims.do_stdScaler_toPdf(npaScaled)
+    npaScaled = mdl_utils.do_stdScaler(pdfFeatEng)
+    pdfScaled = mdl_utils.do_stdScaler_toPdf(npaScaled)
   
-    ndaPredict = mdlClaims.predict(npaScaled)
+    ndaPredict = mdl_xgb.predict(npaScaled)
     pdfPredict = pd.DataFrame(ndaPredict)
 
     #--- stitch the grouped data with the labels
