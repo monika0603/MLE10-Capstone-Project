@@ -7,13 +7,17 @@ from uix import lit_packages
 import uix.pages.lit_about
 import uix.pages.lit_claimAnalysis
 import uix.pages.lit_claimAnomalies
+import uix.pages.lit_anom_superv
 
 
 #--- alt define sidebar pages
 m_aryPages = {
     "Home": uix.pages.lit_about,                            #--- TODO:  update
     "Claims Analysis": uix.pages.lit_claimAnalysis,
-    "Anomaly Detection": uix.pages.lit_claimAnomalies,
+    "Anomalies - Supervised": uix.pages.lit_anom_superv,
+    "Anomalies - UnSupervised": uix.pages.lit_claimAnomalies,
+    "Model - LogR": uix.pages.lit_claimAnalysis,             #--- TODO:  update
+    "Model - SVM": uix.pages.lit_claimAnalysis,             #--- TODO:  update
     "Model - GBC": uix.pages.lit_claimAnalysis,             #--- TODO:  update
     "Model - Txf": uix.pages.lit_claimAnalysis,             #--- TODO:  update
     "About": uix.pages.lit_about
