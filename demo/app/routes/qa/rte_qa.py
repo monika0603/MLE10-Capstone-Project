@@ -1,10 +1,7 @@
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import HTMLResponse
-
 from fastapi.templating import Jinja2Templates
-from pathlib import Path
 
-import lib.model as mdlClaims
 import lib.claims as libClaims
 import lib.utils as libPaths
 
@@ -33,6 +30,7 @@ def get_jinja2Templ(request: Request, pdfResults, strParamTitle, lngNumRecords, 
             }
     result = m_templRef.TemplateResponse(kstrTempl, jsonContext)
     return result
+
 
 @rteQa.get('/')
 @rteQa.get('/verif')
@@ -142,13 +140,13 @@ def claims_stdScalingTest(request: Request, response: Response):
 
 
 @rteQa.get('/claims/predict/superv', response_class = HTMLResponse)
-@rteQa.get('/claims/predict/gbc', response_class = HTMLResponse)
-def predict_supervised_gbc(request: Request, response: Response):
+@rteQa.get('/claims/predict/xgb', response_class = HTMLResponse)
+def predict_supervised_xgb(request: Request, response: Response):
     
     #--- load test data
     #--- filter to only those rows that are flagged with an anomaly
     pdfClaims = libClaims.load_claims(False)
-    pdfResults = libClaims.get_gbcPredict(pdfClaims)
+    pdfResults = libClaims.get_xgbPredict(pdfClaims)
     pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
 
     lngNumRecords = m_klngMaxRecords
@@ -182,7 +180,7 @@ def predict_supervised_svm(request: Request, response: Response):
     #--- load test data
     #--- filter to only those rows that are flagged with an anomaly
     pdfClaims = libClaims.load_claims(False)
-    pdfResults = libClaims.get_logrPredict(pdfClaims)
+    pdfResults = libClaims.get_svmPredictget_logrPredict(pdfClaims)
     pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
 
     lngNumRecords = m_klngMaxRecords
