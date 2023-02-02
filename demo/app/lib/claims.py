@@ -1,11 +1,14 @@
 import pandas as pd
 import lib.utils as libPaths
-import lib.model as libModels
+
+from lib.models import mdl_utils, mdl_xgb, mdl_logR, mdl_autoenc, mdl_svm
 
 
 #--- load, merge data from file
 m_kstrDataPath = libPaths.pth_data
 m_kstrModelPath = libPaths.pth_model
+m_kstrBinModelPath = libPaths.pth_binModels
+
 
 
 def getPath_defPklClaims(blnIsTrain=False):
@@ -17,8 +20,8 @@ def getPath_defPklClaims(blnIsTrain=False):
 
 
 #--- initialize paths
-m_kstrPklClaims = m_kstrDataPath + 'deng_testClaims.pkl'
-m_kstrPth_pklClaims = getPath_defPklClaims(blnIsTrain=False)
+#m_kstrPklClaims = m_kstrDataPath + 'deng_testClaims.pkl'
+#m_kstrPth_pklClaims = getPath_defPklClaims(blnIsTrain=False)
 
 
 
@@ -144,64 +147,6 @@ def do_featEng(pdfLoaded, blnIsTrain=False):
 
 
 
-def do_stdScaler(pdfFeatEng, blnIsTrain=False):
-    print("INFO (claims.do_stdScaler):  blnIsTrain, ", blnIsTrain)
-
-    #--- Note:  prediction runs on X_val
-    '''
-    #--- WARN:  The default value of numeric_only in DataFrameGroupBy.sum is deprecated. 
-    #           In a future version, numeric_only will default to False. Either specify 
-    #           numeric_only or select only columns which should be valid for the function.
-    '''
-
-    #--- WARN:  this code groups all data by provider;  any predictions will also be by provider
-    pdfGroupBy = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
-    X = pdfGroupBy
-
-
-    try:
-        X = X.drop(columns=['Provider'], axis=1)
-    except KeyError:
-        #--- likely column not found; invalid fxn call
-        print("ERROR (claims.do_stdScaler):  Provider col not found")
-
-    try:
-        X = X.drop(columns=['PotentialFraud'], axis=1)
-    except KeyError:
-        #--- likely column not found; invalid fxn call
-        print("ERROR (claims.do_stdScaler):  Potential Fraud col not found")
-
-
-    #--- apply std scaler
-    #--- WARN:  scaling is also grouped by provider
-    X_std = libModels.fit_txfStdScaler(X, blnIsTrain)
-    return X_std
-
-
-def do_stdScaler_toPdf(npaScaled):
-    #--- NOTE:  the list of cols came from do_stdScaler; print(X.columns)
-    aryCols = ['InscClaimAmtReimbursed', 'DeductibleAmtPaid', 'AdmittedDays',
-       'NoOfMonths_PartACov', 'NoOfMonths_PartBCov', 'ChronicCond_Alzheimer',
-       'ChronicCond_Heartfailure', 'ChronicCond_KidneyDisease',
-       'ChronicCond_Cancer', 'ChronicCond_ObstrPulmonary',
-       'ChronicCond_Depression', 'ChronicCond_Diabetes',
-       'ChronicCond_IschemicHeart', 'ChronicCond_Osteoporasis',
-       'ChronicCond_rheumatoidarthritis', 'ChronicCond_stroke',
-       'IPAnnualReimbursementAmt', 'IPAnnualDeductibleAmt',
-       'OPAnnualReimbursementAmt', 'OPAnnualDeductibleAmt', 'Age', 'DeadOrNot',
-       'Gender_2', 'Race_2', 'Race_3', 'Race_5',
-       'ClaimReimbursement_ProviderAvg',
-       'ClaimReimbursement_AttendingPhysician',
-       'ClaimReimbursement_OperatingPhysician',
-       'DeductibleAmtPaid_ProviderAvg', 'DeductibleAmtPaid_AttendingPhysician',
-       'DeductibleAmtPaid_OperatingPhysician']
-
-    #npaScaled = do_stdScaler(pdfFeatEng)
-    pdfScaled = pd.DataFrame(npaScaled, columns=aryCols)
-    return pdfScaled
-
-
-
 #--- data eng on inpatient data
 def prep_inpatData(pdfInpat):
     #--- calc admitted days
@@ -247,11 +192,11 @@ def get_logrPredict(pdfTestClaims):
     #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
 
     pdfFeatEng = do_featEng(pdfClaims, False)
-    npaScaled = do_stdScaler(pdfFeatEng, False)
-    pdfScaled = do_stdScaler_toPdf(npaScaled)
+    npaScaled = mdl_utils.do_stdScaler(pdfFeatEng, False)
+    pdfScaled = mdl_utils.do_stdScaler_toPdf(npaScaled)
     #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
 
-    ndaPredict = libModels.predictLogR(npaScaled)
+    ndaPredict = mdl_logR.predictLogR(npaScaled)
     #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
 
     pdfPredict = pd.DataFrame(ndaPredict)
@@ -273,11 +218,11 @@ def get_svmPredict(pdfTestClaims):
     #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
 
     pdfFeatEng = do_featEng(pdfClaims, False)
-    npaScaled = do_stdScaler(pdfFeatEng, False)
-    pdfScaled = do_stdScaler_toPdf(npaScaled)
+    npaScaled = mdl_utils.do_stdScaler(pdfFeatEng, False)
+    pdfScaled = mdl_utils.do_stdScaler_toPdf(npaScaled)
     #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
 
-    ndaPredict = libModels.predictSVM(npaScaled)
+    ndaPredict = mdl_svm.predict(npaScaled)
     #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
 
     pdfPredict = pd.DataFrame(ndaPredict)
@@ -293,18 +238,18 @@ def get_svmPredict(pdfTestClaims):
 
 
 
-def get_gbcPredict(pdfTestClaims):
+def get_xgbPredict(pdfTestClaims):
 
     #--- load test data
     pdfClaims = pdfTestClaims
     #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
 
     pdfFeatEng = do_featEng(pdfClaims, False)
-    npaScaled = do_stdScaler(pdfFeatEng, False)
-    pdfScaled = do_stdScaler_toPdf(npaScaled)
+    npaScaled = mdl_utils.do_stdScaler(pdfFeatEng, False)
+    pdfScaled = mdl_utils.do_stdScaler_toPdf(npaScaled)
     #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
 
-    ndaPredict = libModels.predictGBC(npaScaled)
+    ndaPredict = mdl_xgb.predict(npaScaled)
     #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
 
     pdfPredict = pd.DataFrame(ndaPredict)
