@@ -1,4 +1,4 @@
-#--- about page
+#--- claim analysis page
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -13,7 +13,6 @@ def run():
     #--- note:  in python, you need to specify global scope for fxns to access module-level variables 
     global m_kbln_traceOn
 
-
     try:
 
         #--- page settings
@@ -23,8 +22,9 @@ def run():
 
         #--- show:  raw claims data analysis
         if (m_kbln_traceOn):  print("TRACE (litClaimAnalysis.run):  Show Raw Claims Dataframe ...")
-        dfClaims = libClaims.loadPkl_testClaims()       #--- note:  a large dataset;  reduce before render
-        dfRaw = dfClaims.sample(10)
+        dfClaims = libClaims.load_claims(False) 
+        #dfClaims = libClaims.loadPkl_testClaims()       #--- note:  a large dataset;  reduce before render
+        dfRaw = dfClaims.sample(25)
         st.markdown("(Sample) Raw Claims Data:  Providers, Beneficiaries, Physicians, Procedures, etc")
         st.dataframe(dfRaw)
 
@@ -35,7 +35,7 @@ def run():
                 {"ClaimID":"count", "InscClaimAmtReimbursed":"sum", "DeductibleAmtPaid":"sum"}
             )    
         st.markdown("(Sample) Raw Claims Data:  Grouped by Provider")
-        st.dataframe(pdfClaimsByProvider.sample(10))
+        st.dataframe(pdfClaimsByProvider.sample(25))
 
         #--- show:  bar charts
         col1, col2 = st.columns(2)
@@ -45,7 +45,7 @@ def run():
         pdfTopClaimsByProv = dfClaims.nlargest(10, "InscClaimAmtReimbursed")
         fig = px.bar(pdfTopClaimsByProv,
             x="Provider", y="InscClaimAmtReimbursed", title="$ Claims by Provider")
-        col1.markdown("(Sample) $Claims Reimbursed by Provider")
+        #col1.markdown("(Sample) $Claims Reimbursed by Provider")
         col1.plotly_chart(fig, use_container_width=True)
 
         #--- #claims reimbursed by provider
@@ -58,6 +58,7 @@ def run():
         pdfClaimCountByProv = pdfClaimCountByProv.nlargest(10, "ClaimID")
         fig = px.bar(pdfClaimCountByProv,
             x="Provider", y="ClaimID", title="# Claims by Provider", barmode="group")
+        #col2.markdown("(Sample) #Claims Reimbursed by Provider")           #--- just to even out the display
         col2.plotly_chart(fig, use_container_width=True)
 
 
