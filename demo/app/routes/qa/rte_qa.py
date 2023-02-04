@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 
 import lib.claims as libClaims
 import lib.utils as libPaths
+from lib.models import mdl_utils as libMdlUtils
 
 import pandas as pd
 
@@ -116,8 +117,8 @@ def claims_featEngTest(request: Request, response: Response):
 def claims_stdScaling(request: Request, response: Response, blnIsTrain=False):
     pdfClaims = libClaims.load_claims(blnIsTrain)
     pdfFeatEng = libClaims.do_featEng(pdfClaims, blnIsTrain)
-    npaScaled = libClaims.do_stdScaler(pdfFeatEng, blnIsTrain)
-    pdfScaled = libClaims.do_stdScaler_toPdf(npaScaled)
+    npaScaled = libMdlUtils.do_stdScaler(pdfFeatEng, blnIsTrain)
+    pdfScaled = libMdlUtils.do_stdScaler_toPdf(npaScaled)
 
     lngNumRecords = m_klngMaxRecords
     blnIsSample = True
@@ -153,7 +154,7 @@ def predict_supervised_xgb(request: Request, response: Response):
     blnIsSample = True
     strParamTitle = "Loaded Claims Predictions (Gradient Boosting Classifier)"
 
-    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, True)
+    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, blnIsSample)
 
 
 
@@ -170,7 +171,7 @@ def predict_supervised_lgr(request: Request, response: Response):
     blnIsSample = True
     strParamTitle = "Loaded Claims Predictions (Logistic Regression)"
 
-    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, True)
+    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, blnIsSample)
 
 
 
@@ -180,11 +181,45 @@ def predict_supervised_svm(request: Request, response: Response):
     #--- load test data
     #--- filter to only those rows that are flagged with an anomaly
     pdfClaims = libClaims.load_claims(False)
-    pdfResults = libClaims.get_svmPredictget_logrPredict(pdfClaims)
+    pdfResults = libClaims.get_svmPredict(pdfClaims)
     pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
 
     lngNumRecords = m_klngMaxRecords
     blnIsSample = True
     strParamTitle = "Loaded Claims Predictions (Support Vector Machines)"
 
-    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, True)
+    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, blnIsSample)
+
+
+
+@rteQa.get('/claims/predict/enc', response_class = HTMLResponse)
+def predict_kerasSeq(request: Request, response: Response):
+    
+    #--- load test data
+    #--- filter to only those rows that are flagged with an anomaly
+    pdfClaims = libClaims.load_claims(False)
+    pdfResults = libClaims.get_encPredict(pdfClaims)
+    pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
+
+    lngNumRecords = m_klngMaxRecords
+    blnIsSample = True
+    strParamTitle = "Loaded Claims Predictions (Transformer/Encoder - Keras Sequential)"
+
+    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, blnIsSample)
+
+
+
+@rteQa.get('/claims/predict/kmeans', response_class = HTMLResponse)
+def predict_kmeans(request: Request, response: Response):
+    
+    #--- load test data
+    #--- filter to only those rows that are flagged with an anomaly
+    pdfClaims = libClaims.load_claims(False)
+    pdfResults = libClaims.get_kmeansPredict(pdfClaims)
+    pdfResults = pdfResults[pdfResults['hasAnom?'] > 0] 
+
+    lngNumRecords = m_klngMaxRecords
+    blnIsSample = True
+    strParamTitle = "Loaded Claims Predictions (Transformer/Encoder - Keras Sequential)"
+
+    return get_jinja2Templ(request, pdfResults, strParamTitle, lngNumRecords, False, blnIsSample)
