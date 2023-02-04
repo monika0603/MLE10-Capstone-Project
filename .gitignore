@@ -1,6 +1,6 @@
 /demo/dkr_images/
 /demo/app/data/*.pkl
-app/uix/pages/__pycache__/
+/demo/app/uix/pages/__pycache__/*.pyc
 
 
 # private, sensitive files

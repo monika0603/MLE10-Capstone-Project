@@ -1,7 +1,8 @@
 import pandas as pd
 import lib.utils as libPaths
 
-from lib.models import mdl_utils, mdl_xgb, mdl_logR, mdl_autoenc, mdl_svm
+from lib.models import mdl_utils, mdl_xgb, mdl_logR, mdl_svm
+from lib.models import mdl_autoenc, mdl_kmeans
 
 
 #--- load, merge data from file
@@ -17,11 +18,6 @@ def getPath_defPklClaims(blnIsTrain=False):
     if (blnIsTrain):  strPrefix = "train_"
     strPth_pklClaims = m_kstrDataPath + strPrefix + 'claims.pkl'
     return strPth_pklClaims
-
-
-#--- initialize paths
-#m_kstrPklClaims = m_kstrDataPath + 'deng_testClaims.pkl'
-#m_kstrPth_pklClaims = getPath_defPklClaims(blnIsTrain=False)
 
 
 
@@ -79,6 +75,7 @@ def loadCsv_claims(blnIsTrain=False):
     return pdfAllPatBenefProv
 
 
+
 def loadCsv_testClaims():
     #--- TODO:  make optional arg test or train data
     return loadCsv_claims(False)
@@ -97,6 +94,7 @@ def loadPkl_claims(blnIsTrain=False):
 
 
 
+#--- feat eng
 def do_featEng(pdfLoaded, blnIsTrain=False):
     print("INFO (claims.doFeatEng):  blnIsTrain, ", blnIsTrain)
     #--- remove cols
@@ -196,7 +194,7 @@ def get_logrPredict(pdfTestClaims):
     pdfScaled = mdl_utils.do_stdScaler_toPdf(npaScaled)
     #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
 
-    ndaPredict = mdl_logR.predictLogR(npaScaled)
+    ndaPredict = mdl_logR.predict(npaScaled)
     #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
 
     pdfPredict = pd.DataFrame(ndaPredict)
@@ -237,7 +235,6 @@ def get_svmPredict(pdfTestClaims):
 
 
 
-
 def get_xgbPredict(pdfTestClaims):
 
     #--- load test data
@@ -261,3 +258,60 @@ def get_xgbPredict(pdfTestClaims):
 
     pdfResults.insert(0, "hasAnom?", pdfPredict[0])
     return pdfResults
+
+
+
+def get_encPredict(pdfTestClaims):
+
+    #--- principal component analysis predictions;  load test data
+    pdfClaims = pdfTestClaims
+    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+
+    pdfFeatEng = do_featEng(pdfClaims, False)                           #--- not grouped by provider
+    
+
+    #--- perform standard scaling; get fit then transform                      
+    npaScaled = mdl_utils.do_stdScaler(pdfFeatEng, False)               #--- grouped by provider
+    pdfScaled = mdl_utils.do_stdScaler_toPdf(npaScaled)
+    #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
+
+    #--- perform PCA; then autoencode predict
+    ndaPredict = mdl_autoenc.predict(pdfScaled)
+    #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
+
+    pdfPredict = pd.DataFrame(ndaPredict)
+    #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+
+    #--- stitch the grouped data with the labels
+    pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
+    #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
+
+    pdfResults.insert(0, "hasAnom?", pdfPredict[0])
+    return pdfResults    
+
+
+
+def get_kmeansPredict(pdfTestClaims):
+
+    pdfClaims = pdfTestClaims
+    pdfFeatEng = do_featEng(pdfClaims, False)                           #--- not grouped by provider
+    
+
+    #--- perform standard scaling; get fit then transform                      
+    npaScaled = mdl_utils.do_stdScaler(pdfFeatEng, False)               #--- grouped by provider
+    pdfScaled = mdl_utils.do_stdScaler_toPdf(npaScaled)
+    #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
+
+    #--- perform PCA; then autoencode predict
+    ndaPredict = mdl_kmeans.predict(pdfScaled)
+    #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
+
+    pdfPredict = pd.DataFrame(ndaPredict)
+    #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+
+    #--- stitch the grouped data with the labels
+    pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
+    #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
+
+    pdfResults.insert(0, "hasAnom?", pdfPredict[0])
+    return pdfResults    
