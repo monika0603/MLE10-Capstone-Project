@@ -1,0 +1,3 @@
+bin/models/kmn_model.pkl
+data/*.csv
+data/*TestSample.pkl

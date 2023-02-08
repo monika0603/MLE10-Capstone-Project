@@ -67,7 +67,7 @@ def providers_featEng(request: Request, response: Response, blnIsTrain=False):
 
     strParamTitle = "Feature Engineered Claims Grouped by Provider"
 
-    return libUtils.get_jinja2Templ(request, pdfFeatEng_providers, strParamTitle, 
+    return libMain.get_jinja2Templ(request, pdfFeatEng_providers, strParamTitle, 
                                     lngNumRecords, blnIsTrain, True)
 
 
@@ -95,7 +95,7 @@ def providers_stdScaling(request: Request, response: Response, blnIsTrain=False)
     blnIsSample = True
 
     strParamTitle = "Std Scaled Claims Grouped by Provider"
-    return libUtils.get_jinja2Templ(request, pdfScaled, strParamTitle, 
+    return libMain.get_jinja2Templ(request, pdfScaled, strParamTitle, 
                                 lngNumRecords, blnIsTrain, blnIsSample)
 
 
@@ -127,7 +127,7 @@ def predict_supervised_xgb(request: Request, response: Response):
     blnIsSample = True
     strParamTitle = "Provider Predictions (Gradient Boosting Classifier)"
 
-    return libUtils.get_jinja2Templ(request, pdfResults, strParamTitle, 
+    return libMain.get_jinja2Templ(request, pdfResults, strParamTitle, 
                                 lngNumRecords, False, blnIsSample)
 
 
@@ -146,7 +146,7 @@ def predict_supervised_logr(request: Request, response: Response):
     blnIsSample = True
     strParamTitle = "Provider Predictions (Logistic Regression)"
 
-    return libUtils.get_jinja2Templ(request, pdfResults, strParamTitle, 
+    return libMain.get_jinja2Templ(request, pdfResults, strParamTitle, 
                             lngNumRecords, False, blnIsSample)
 
 
@@ -165,7 +165,7 @@ def predict_supervised_svm(request: Request, response: Response):
     blnIsSample = True
     strParamTitle = "Provider Predictions (Support Vector Machines)"
 
-    return libUtils.get_jinja2Templ(request, pdfResults, strParamTitle, 
+    return libMain.get_jinja2Templ(request, pdfResults, strParamTitle, 
                             lngNumRecords, False, blnIsSample)
 
 
@@ -184,5 +184,5 @@ def predict_kerasSeq(request: Request, response: Response):
     blnIsSample = True
     strParamTitle = "Claims Predictions (Transformer/Encoder - Keras Sequential)"
 
-    return libUtils.get_jinja2Templ(request, pdfResults, strParamTitle, 
+    return libMain.get_jinja2Templ(request, pdfResults, strParamTitle, 
                                 lngNumRecords, False, blnIsSample)

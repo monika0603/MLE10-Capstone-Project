@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse
 
 from lib import utils as libUtils, claims as libClaims
 from lib.models import mdl_utils as libMdlUtils
+import main as libMain
 
 m_kstrFile = __file__
 m_blnTraceOn = True
@@ -22,7 +23,7 @@ def claims_loadData(request: Request, response: Response, blnIsTrain=False, blnI
     lngNumRecords = libUtils.m_klngMaxRecords
     strParamTitle = "Claims"
 
-    return libUtils.get_jinja2Templ(request, pdfClaims, strParamTitle, lngNumRecords, blnIsTrain, blnIsSample)
+    return libMain.get_jinja2Templ(request, pdfClaims, strParamTitle, lngNumRecords, blnIsTrain, blnIsSample)
 
 
 
