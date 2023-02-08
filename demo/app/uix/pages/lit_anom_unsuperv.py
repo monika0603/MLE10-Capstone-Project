@@ -48,7 +48,7 @@ def run():
 
 
         #--- table of claims and clusters, sorted by InscClaimAmt Reimbursed
-        pdfTopClaims = pdfSample.sort_values(by=["cluster", "InscClaimAmtReimbursed"], ascending=False)
+        pdfTopClaims = pdfSample.sample(25).sort_values(by=["cluster", "InscClaimAmtReimbursed"], ascending=False)
         if (m_kbln_traceOn):  print("TRACE (litAnomUnsuperv.run):  Show $claims reimbursed by cluster ...")
         st.markdown("(Top) Ins Claim Reimbursed by Cluster")
         st.dataframe(pdfTopClaims)
@@ -62,11 +62,11 @@ def run():
 
 
         #--- chart KMeans clusters")
-        chart_KMeansClusters(pdfSample, "Age", "InscClaimAmtReimbursed", col1)
+        #chart_KMeansClusters(pdfSample, "Age", "InscClaimAmtReimbursed", col1)
 
 
         #--- chart KMeans clusters")
-        chart_KMeansClusters(pdfSample, "providerId", "InscClaimAmtReimbursed", col2)
+        #chart_KMeansClusters(pdfSample, "providerId", "InscClaimAmtReimbursed", col2)
 
 
     except TypeError as e:
