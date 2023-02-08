@@ -7,10 +7,10 @@
 - pip list --format=freeze > env_capstone_py3.10.8.txt
 
 - how to run fast api:
-    - uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 48300
+    - demo/app/uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 48300
 
 - how to run streamlit:
-    - streamlit run lit_index.py --server.port 48400
+    - demo/app/streamlit run lit_index.py --server.port 48400
 
 #--- AWS prereqs
 - ssh into AWS ec2
