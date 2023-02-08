@@ -95,7 +95,7 @@ def loadPkl_claims(blnIsTrain=False):
 
 
 #--- feat eng
-def do_featEng(pdfLoaded, blnIsTrain=False, hasGroupByProviderCols=True):
+def do_featEng(pdfLoaded, blnIsTrain=False):
     print("INFO (claims.doFeatEng):  blnIsTrain, ", blnIsTrain)
     #--- remove cols
     aryColsToDrop = ['BeneID', 'ClaimID', 'ClaimStartDt','ClaimEndDt','AttendingPhysician',
@@ -133,15 +133,14 @@ def do_featEng(pdfLoaded, blnIsTrain=False, hasGroupByProviderCols=True):
     #--- check for correlated cols
 
     #--- add new features to assist with predictions
-    if (hasGroupByProviderCols):
-        pdfFeatEng['InscClaimReimbursement_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean') 
-        pdfFeatEng['DeductibleAmtPaid_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['DeductibleAmtPaid'].transform('mean')
-        
-        pdfFeatEng['IPAnnualReimbursementAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['IPAnnualReimbursementAmt'].transform('mean')
-        pdfFeatEng['IPAnnualDeductibleAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['IPAnnualDeductibleAmt'].transform('mean')
+    pdfFeatEng['InscClaimReimbursement_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['InscClaimAmtReimbursed'].transform('mean') 
+    pdfFeatEng['DeductibleAmtPaid_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['DeductibleAmtPaid'].transform('mean')
+    
+    pdfFeatEng['IPAnnualReimbursementAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['IPAnnualReimbursementAmt'].transform('mean')
+    pdfFeatEng['IPAnnualDeductibleAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['IPAnnualDeductibleAmt'].transform('mean')
 
-        pdfFeatEng['OPAnnualReimbursementAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['OPAnnualReimbursementAmt'].transform('mean')
-        pdfFeatEng['OPAnnualDeductibleAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['OPAnnualDeductibleAmt'].transform('mean')
+    pdfFeatEng['OPAnnualReimbursementAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['OPAnnualReimbursementAmt'].transform('mean')
+    pdfFeatEng['OPAnnualDeductibleAmt_ProviderAvg'] = pdfFeatEng.groupby(['Provider'])['OPAnnualDeductibleAmt'].transform('mean')
     return pdfFeatEng
 
 
@@ -184,52 +183,37 @@ def prep_benefData(pdfBenef):
 
 
 
-def get_kmeansPredict(pdfTestClaims):
-
-    #--- load test data
-    pdfClaims = pdfTestClaims
-    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
-
-    #--- perform featEng, std scaling
-    print("TRACE: claims.kmeansPredict  perform featEng, stdScaling ...")
-    pdfFeatEng = mdl_kmeans.do_featEng(pdfClaims, False, False)
-    npaScaled = mdl_utils.doClaims_stdScaler(pdfFeatEng, False)
-    pdfScaled = mdl_utils.doClaims_stdScaler_toPdf(npaScaled)
-    #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
-
-    #--- get the pre-fit kmeans clusters
-    #--- predict/label clusters against data points 
-    print("TRACE: claims.kmeansPredict  perform kmeans predict ...")
-    ndaPredict = mdl_kmeans.predict(pdfScaled)
-    #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
-
-    pdfPredict = pd.DataFrame(ndaPredict)
-    #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
-
-    #--- stitch the data with the labels
-    print("TRACE: claims.kmeansPredict  stitch lables with results ...")
-    pdfResults = pdfTestClaims
-    #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
-
-    pdfResults.insert(0, "cluster", pdfPredict[0])
-    return pdfResults
-
-
-
 def get_kmeansFit(pdfTestClaims):
 
     pdfClaims = pdfTestClaims
-    pdfFeatEng = mdl_kmeans.do_featEng(pdfClaims, False, False)         #--- not grouped by provider
+    pdfFeatEng = do_featEng(pdfClaims, False)                           #--- not grouped by provider
     
 
-    #--- perform standard scaling; get fit then transform
-    #--- Q:  MinMaxScaling may be more appropriate for kmeans                      
-    npaScaled = mdl_utils.doClaims_stdScaler(pdfFeatEng, False)               #--- not grouped by provider
-    pdfScaled = mdl_utils.doClaims_stdScaler_toPdf(npaScaled)
+    #--- perform standard scaling; get fit then transform                      
+    npaScaled = mdl_utils.do_stdScaler(pdfFeatEng, False)               #--- grouped by provider
+    pdfScaled = mdl_utils.do_stdScaler_toPdf(npaScaled)
     #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
 
     #--- SKIP:  perform PCA; then kmeans fit (this was done to determine the KMeans params)
     #--- get Kmeans object, instantiated with trained args, and fit to test/prod scaled data
+    #--- OR ... assume that the kmeans is already fit, and we now want to predict which cluster each data point appears in
     mdlKmeans = mdl_kmeans.fit(pdfScaled)
+    """ 
+
+        pdfPredict = pd.DataFrame(ndaPredict)
+        #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+
+        #--- stitch the grouped data with the labels
+        pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
+        #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
+
+        pdfResults.insert(0, "hasAnom?", pdfPredict[0]) 
+
+        Notes:
+        - train_final = trainAllPatientDetailsProvider          #--- ungrouped data (558211, 27); has PotentialFraud cols
+        - train_final = pd.get_dummies                          #--- post one-hot encoding (558211, 25=27-2+4) ;  -Gender-Race + 4*(Gender+Race one-hot encoding) 
+        - y, X:  X.shape = (558211, 27);  y.shape=(558211,1)    #--- X popped PotentialFraud, and dropped Provider
+        - train_final[cluster_labels] = mdlKMeans.labels
+    """
 
     return mdlKmeans    
