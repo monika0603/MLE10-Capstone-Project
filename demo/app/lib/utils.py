@@ -1,3 +1,6 @@
+#--- note:  this file is loaded by fastapi and streamlit, 
+# #         so keep it independant of those libs
+
 from pathlib import Path
 
 pth_pwd = Path(__file__).resolve().parent
@@ -15,3 +18,6 @@ pth_qa = pth_root + "qa/"
 pth_routes = pth_root + "routes/"
 pth_templ = pth_root + "templ/"
 pth_uix = pth_root + "uix/"
+
+m_klngMaxRecords = 100
+m_klngSampleSize = 25

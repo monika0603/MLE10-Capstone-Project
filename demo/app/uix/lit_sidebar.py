@@ -1,26 +1,21 @@
 import streamlit as st
 import importlib
-#import uix as libUix                    # default library name for apps
 from uix import lit_packages
-#from uix import pages as libUixPages
 
-import uix.pages.lit_about
-import uix.pages.lit_claimAnalysis
-import uix.pages.lit_claimAnomalies
-import uix.pages.lit_anom_superv
+from uix.pages import lit_about
+from uix.pages import lit_anom_superv, lit_anom_unsuperv
+
 
 
 #--- alt define sidebar pages
 m_aryPages = {
-    "Home": uix.pages.lit_about,                            #--- TODO:  update
-    "Claims Analysis": uix.pages.lit_claimAnalysis,
-    "Anomalies - Supervised": uix.pages.lit_anom_superv,
-    "Anomalies - UnSupervised": uix.pages.lit_claimAnomalies,
-    "Model - LogR": uix.pages.lit_claimAnalysis,             #--- TODO:  update
-    "Model - SVM": uix.pages.lit_claimAnalysis,             #--- TODO:  update
-    "Model - GBC": uix.pages.lit_claimAnalysis,             #--- TODO:  update
-    "Model - Txf": uix.pages.lit_claimAnalysis,             #--- TODO:  update
-    "About": uix.pages.lit_about
+    "Home":                 lit_about,                      #--- TODO:  update
+    #"Provider Analysis":    lit_providerAnalysis,
+    #"Claims Analysis":      lit_claimAnalysis,
+    "Provider Anoms - Supervised":  lit_anom_superv,
+    "Claim Anoms - UnSupervised":   lit_anom_unsuperv,
+    "MLE Model Performance":    lit_about,          #--- TODO:  update
+    "About":                    lit_about
 }
 
 
