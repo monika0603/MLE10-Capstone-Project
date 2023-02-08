@@ -8,12 +8,19 @@
           {
             "name": "bash",
             "commands": ["conda activate prod_capstone"]
-          },
+          }
+        ]
+      },
+      {
+        "splitTerminals": [
           {
             "name": "git",
             "commands": ["conda activate prod_capstone"]
-          },
-          {
+          }
+        ]
+      },
+      {
+        "splitTerminals": [  {
             "name": "fastapi",
             "commands": ["conda activate prod_capstone"]
           },
