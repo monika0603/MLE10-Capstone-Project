@@ -7,8 +7,10 @@ import pandas as pd
 m_kstrFile = __file__
 m_kstrDataPath = libPaths.pth_data
 m_kstrBinModelPath = libPaths.pth_binModels
-m_kstrPcaModelPath = m_kstrBinModelPath + 'pca_kmeans_unsuperv_colab.pkl'
-m_kstrKmeansModelPath = m_kstrBinModelPath + 'kmeans_unsuperv_colab.pkl'
+#m_kstrPcaModelPath = m_kstrBinModelPath + 'pca_kmeans_unsuperv_colab.pkl'
+m_kstrPcaModelPath = m_kstrBinModelPath + 'pca_kmeans_unsuperv_colab_v1.2.1.pkl'
+#m_kstrKmeansModelPath = m_kstrBinModelPath + 'kmeans_unsuperv_colab.pkl'
+m_kstrKmeansModelPath = m_kstrBinModelPath + 'kmn_unsuperv_colab_v1.2.1.pkl'
 m_blnTraceOn = True
 
 
