@@ -8,7 +8,9 @@ m_kstrDataPath = libPaths.pth_data
 m_kstrModelPath = libPaths.pth_model
 m_kstrBinModelPath = libPaths.pth_binModels
 
-m_kstrScalerPath_claims = m_kstrBinModelPath + 'stdClaims_scaler_colab.pkl'  
+#m_kstrScalerPath_claims = m_kstrBinModelPath + 'stdClaims_scaler_colab.pkl'         #--- does not work for scaling claims data;  from v1.0.2; using 1.1.1
+#m_kstrScalerPath_claims2 = m_kstrBinModelPath + 'std_scaler_unsuperv_colab.pkl'     #--- does not work; expects 32 features 
+m_kstrScalerPath_claims = m_kstrBinModelPath + 'stdClaims_scaler_colab_v1.2.1.pkl'   
 m_kstrScalerPath_providers = m_kstrBinModelPath + 'stdProvider_scaler_colab.pkl'
 m_kstrScalerPath_providers_superv = m_kstrBinModelPath + 'gbc_scaler.pkl'
 m_kstrScalerPath_providers_train = m_kstrBinModelPath + "stdProvider_scaler.pkl" 
@@ -138,6 +140,7 @@ def fitClaims_stdScaler(pdfData, blnIsTrain=False):
 
     #--- note:  this is a numpy.ndarray
     #--- we need to fit the scaler, and then save as a pkl file
+    #strScalerPath = m_kstrScalerPath_claims
     strScalerPath = m_kstrScalerPath_claims
 #    strScalerPath = m_kstrBinModelPath + "stdClaims_scaler_colab.pkl"
     print("INFO (lib.model.fitClaims_stdScalar):  ", strScalerPath)
