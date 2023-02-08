@@ -35,7 +35,7 @@ def tst_claims_featEng():
 def tst_claims_stdScaling():
     pdfClaims = libClaims.load_claims()
     pdfFeatEng = libClaims.do_featEng(pdfClaims)
-    pdfScaled = mdl_utils.do_stdScaler_toPdf(pdfFeatEng)
+    pdfScaled = mdl_utils.doClaims_stdScaler_toPdf(pdfFeatEng)
 
     jsonSample = pdfClaims.head(50).to_json(orient="records", indent=4)
     result = json.loads(jsonSample)
