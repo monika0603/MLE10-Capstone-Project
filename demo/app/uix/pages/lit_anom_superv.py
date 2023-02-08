@@ -19,7 +19,7 @@ def run():
 
         #--- page settings
         if (m_kbln_traceOn):  print("TRACE (litAnomSuperv.run):  Initialize Page Settings ...")
-        st.header("Provider Anomalies - Supervised Approach (GBC)")
+        st.header("Provider Anomalies - Supervised Approach (XG Boost)")
 
         #--- TODO:
         #prep a grouped test data file
