@@ -26,7 +26,8 @@
 
     Section 4:  How to deploy
         4.1     Manual Method
-                - SSH:  ssh into EC2, e.g   ssh -i "capstone-mle10-imckone.pem" ec2-user@ec2-44-201-155-7.compute-1.amazonaws.com
+                - SSH:  ssh into EC2, e.g   
+                    ssh -i "capstone-mle10-imckone.pem" ec2-user@ec2-44-201-155-7.compute-1.amazonaws.com
                 - Conda:    conda activate prod_capstone
                 - Git:      mkdir mle10-capstone
                             cd mle10*

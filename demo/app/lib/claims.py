@@ -209,7 +209,7 @@ def get_kmeansPredict(pdfTestClaims):
     #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
 
     #--- stitch the data with the labels
-    print("TRACE: claims.kmeansPredict  stitch lables with results ...")
+    print("TRACE: claims.kmeansPredict  stitch labels with results ...")
     pdfResults = pdfTestClaims
     #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
 
