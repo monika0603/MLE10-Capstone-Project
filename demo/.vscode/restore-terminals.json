@@ -3,40 +3,33 @@
     "keepExistingTerminalsOpen": true,
     "runOnStartup": true,
     "terminals": [
-      {
-        "splitTerminals": [
-          {
-            "name": "bash",
+      {"splitTerminals": [
+          {"name": "bash",
             "commands": ["conda activate prod_capstone"]
           }
         ]
       },
-      {
-        "splitTerminals": [
-          {
-            "name": "git",
+      {"splitTerminals": [
+          {"name": "git",
             "commands": ["conda activate prod_capstone"]
           }
         ]
       },
-      {
-        "splitTerminals": [  {
-            "name": "fastapi",
-            "commands": ["conda activate prod_capstone"]
-          },
-          {
-            "name": "streamlit",
+      {"splitTerminals": [  
+          {"name": "fastapi",
             "commands": ["conda activate prod_capstone"]
           }
         ]
       },
-      {
-        "splitTerminals": [
-          {
-            "name": "bash2",
-            "commands": [
-              "conda activate prod_capstone"
-            ],
+      {"splitTerminals": [  
+          {"name": "streamlit",
+            "commands": ["conda activate prod_capstone"]
+          }
+        ]
+      },
+      {"splitTerminals": [
+          {"name": "bash2",
+            "commands": ["conda activate prod_capstone"],
             "shouldRunCommands": false
           }
         ]
