@@ -2,9 +2,10 @@ from fastapi import APIRouter, Request, Response
 from fastapi.responses import HTMLResponse
 
 
+import main as libMain
 from lib import utils as libUtils, claims as libClaims
 from lib.models import mdl_utils as libMdlUtils
-import main as libMain
+
 
 m_kstrFile = __file__
 m_blnTraceOn = True
@@ -71,7 +72,7 @@ def claims_stdScaling(request: Request, response: Response, blnIsTrain=False):
     blnIsSample = True
 
     strParamTitle = "Std Scaled Claims"
-    return libUtils.get_jinja2Templ(request, pdfScaled, strParamTitle, lngNumRecords, blnIsTrain, blnIsSample)
+    return libMain.get_jinja2Templ(request, pdfScaled, strParamTitle, lngNumRecords, blnIsTrain, blnIsSample)
 
 
 
@@ -97,7 +98,7 @@ def claims_doFeatEng(request: Request, response: Response, blnIsTrain=False):
 
     strParamTitle = "Feature Engineered Claims"
 
-    return libUtils.get_jinja2Templ(request, pdfFeatEng_claims, strParamTitle, 
+    return libMain.get_jinja2Templ(request, pdfFeatEng_claims, strParamTitle, 
                                     lngNumRecords, blnIsTrain, True)
 
 
@@ -115,7 +116,7 @@ def predict_kmeans(request: Request, response: Response):
     blnIsSample = False
     strParamTitle = "Predictions (KMeans Clusters)"
 
-    return libUtils.get_jinja2Templ(request, pdfResults, strParamTitle, 
+    return libMain.get_jinja2Templ(request, pdfResults, strParamTitle, 
                                     lngNumRecords, False, blnIsSample)
 
 

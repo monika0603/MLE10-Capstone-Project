@@ -183,6 +183,41 @@ def prep_benefData(pdfBenef):
 
 
 
+
+
+
+def get_kmeansPredict(pdfTestClaims):
+
+    #--- load test data
+    pdfClaims = pdfTestClaims
+    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+
+    #--- perform featEng, std scaling
+    print("TRACE: claims.kmeansPredict  perform featEng, stdScaling ...")
+    pdfFeatEng = mdl_kmeans.do_featEng(pdfClaims, False, False)
+    npaScaled = mdl_utils.doClaims_stdScaler(pdfFeatEng, False)
+    pdfScaled = mdl_utils.doClaims_stdScaler_toPdf(npaScaled)
+    #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
+
+    #--- get the pre-fit kmeans clusters
+    #--- predict/label clusters against data points 
+    print("TRACE: claims.kmeansPredict  perform kmeans predict ...")
+    ndaPredict = mdl_kmeans.predict(pdfScaled)
+    #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
+
+    pdfPredict = pd.DataFrame(ndaPredict)
+    #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+
+    #--- stitch the data with the labels
+    print("TRACE: claims.kmeansPredict  stitch lables with results ...")
+    pdfResults = pdfTestClaims
+    #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
+
+    pdfResults.insert(0, "cluster", pdfPredict[0])
+    return pdfResults
+
+
+
 def get_kmeansFit(pdfTestClaims):
 
     pdfClaims = pdfTestClaims
