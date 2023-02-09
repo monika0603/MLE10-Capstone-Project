@@ -119,19 +119,21 @@ def chart_KMeansClusters(pdfSample, strXFeature, strYFeature, stCol):
         )
     )
 
-    fig.add_trace(
-        go.Scatter(
-            x=pdfCluster1[strXFeature],
-            y=pdfCluster1[strYFeature],
-            mode='markers',
-            name='cluster1'
-        )) 
+    if (pdfCluster1.shape[0]>0):
+        fig.add_trace(
+            go.Scatter(
+                x=pdfCluster1[strXFeature],
+                y=pdfCluster1[strYFeature],
+                mode='markers',
+                name='cluster1'
+            )) 
 
-    fig.add_trace(
-        go.Scatter(
-            x=pdfCluster2[strXFeature],
-            y=pdfCluster2[strYFeature],
-            mode='markers',
-            name='cluster2'
-        )) 
+    if (pdfCluster2.shape[0]>0):
+        fig.add_trace(
+            go.Scatter(
+                x=pdfCluster2[strXFeature],
+                y=pdfCluster2[strYFeature],
+                mode='markers',
+                name='cluster2'
+            )) 
     stCol.plotly_chart(fig, use_container_width=True)

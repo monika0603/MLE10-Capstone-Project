@@ -160,6 +160,10 @@ def fitClaims_stdScaler(pdfData, blnIsTrain=False):
             sclFit = pickle.load(filPkl)
         print("WARN (libModel.fitClaims_stdScalar)  sclFit.type: ", type(sclFit))
         print("INFO (libModel.fitClaims_stdScalar)  sclFit.version: " , sclFit.__getstate__()['_sklearn_version'])
+
+        #--- testing
+        scaler = StandardScaler()
+        print("INFO (libModel.fitClaims_stdScalar)  StdScaler.version: ", scaler.__getstate__()['_sklearn_version'])
     return sclFit
 
 
