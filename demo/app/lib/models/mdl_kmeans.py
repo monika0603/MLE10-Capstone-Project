@@ -66,8 +66,8 @@ def predict(pdfScaled):
     #--- prefit Kmeans clustering - was fit on trained pdfReduced
     #--- Note:  if we want to understand how kmeans performs on test/prod data, we need to predict
     mdlKMeans = load_kmeansFromPkl()
-    ndaPredict = mdlKMeans.predict(pdfScaled)
-#    ndaPredict = mdlKMeans.predict(pdfReduced)         #ValueError: X has 22 features, but KMeans is expecting 27 features as input.
+    #ndaPredict = mdlKMeans.predict(pdfScaled)         #20230208:  ValueError: X has 27 features, but KMeans is expecting 22 features as input.
+    ndaPredict = mdlKMeans.predict(pdfReduced)       #ValueError: X has 22 features, but KMeans is expecting 27 features as input.
     return ndaPredict
 
 
