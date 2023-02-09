@@ -34,7 +34,7 @@ def run():
         #--- get unsupervised predictions
         #pdfFeatEng = libClaims.do_featEng(pdfClaims)
         pdfPred = libClaims.get_kmeansPredict(pdfClaims)
-        pdfSample = pdfPred.sample(25)
+        pdfSample = pdfPred.sample(50)
         pdfSample['providerId'] = pdfSample['Provider'].str[3:].astype(np.float64)
 
 
