@@ -155,15 +155,17 @@ def fitClaims_stdScaler(pdfData, blnIsTrain=False):
             pickle.dump(sclFit, filPkl)
     else:
         #--- we need to load the pkl file
+        import sklearn
         print("WARN (lib.model.fit_stdScalar)  Using colab pkl for Test: ", strScalerPath)
         with open(strScalerPath, 'rb') as filPkl:
             sclFit = pickle.load(filPkl)
         print("WARN (libModel.fitClaims_stdScalar)  sclFit.type: ", type(sclFit))
-        print("INFO (libModel.fitClaims_stdScalar)  sclFit.version: " , sclFit.__getstate__()['_sklearn_version'])
 
         #--- testing
         scaler = StandardScaler()
         print("INFO (libModel.fitClaims_stdScalar)  StdScaler.version: ", scaler.__getstate__()['_sklearn_version'])
+        print("INFO (libModel.fitClaims_stdScalar)  sclFit.version: " , sclFit.__getstate__()['_sklearn_version'])
+        print("INFO (libModel.fitClaims_stdScalar)  sklearn.version: " , sklearn.__version__)
     return sclFit
 
 
