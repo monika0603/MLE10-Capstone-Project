@@ -10,7 +10,8 @@ m_kstrBinModelPath = libPaths.pth_binModels
 
 #m_kstrScalerPath_claims = m_kstrBinModelPath + 'stdClaims_scaler_colab.pkl'         #--- does not work for scaling claims data;  from v1.0.2; using 1.1.1
 #m_kstrScalerPath_claims2 = m_kstrBinModelPath + 'std_scaler_unsuperv_colab.pkl'     #--- does not work; expects 32 features 
-m_kstrScalerPath_claims = m_kstrBinModelPath + 'stdClaims_scaler_colab_v1.2.1.pkl'   
+#m_kstrScalerPath_claims = m_kstrBinModelPath + 'stdClaims_scaler_colab_v1.2.1.pkl'   
+m_kstrScalerPath_claims = m_kstrBinModelPath + 'claims_stdScaler_v1.1.1_27cols.pkl' 
 m_kstrScalerPath_providers = m_kstrBinModelPath + 'stdProvider_scaler_colab.pkl'
 m_kstrScalerPath_providers_superv = m_kstrBinModelPath + 'gbc_scaler.pkl'
 m_kstrScalerPath_providers_train = m_kstrBinModelPath + "stdProvider_scaler.pkl" 
