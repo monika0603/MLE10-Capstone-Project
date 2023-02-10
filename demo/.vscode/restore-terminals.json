@@ -28,7 +28,14 @@
         ]
       },
       {"splitTerminals": [
-          {"name": "bash2",
+          {"name": "notebook",
+            "commands": ["conda activate prod_capstone"],
+            "shouldRunCommands": false
+          }
+        ]
+      },
+      {"splitTerminals": [
+          {"name": "ssh",
             "commands": ["conda activate prod_capstone"],
             "shouldRunCommands": false
           }
