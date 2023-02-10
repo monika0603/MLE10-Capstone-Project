@@ -33,17 +33,18 @@
     Section 4:  How to deploy
         4.1     EC2:  Manual Method
                 - ssh:          ssh -i "capstone-mle10-imckone.pem" ec2-user@ec2-44-201-155-7.compute-1.amazonaws.com
-                - conda:        conda activate prod_capstone
+                - conda:        conda activate env_capstone
                 - git:          cd mle10*/demo/app
                                 git pull capstone ftr_demo
                 - tmux:         tmux a -t demo_streamlit
                                 tmux a -t demo_fastapi
-                - streamlit:    (from demo/app)
-                    - launch:   streamlit run lit_index.py --server.port 58080
+                - streamlit:    streamlit run lit_index.py --server.port 58080
+                - fastapi:      uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 58081
 
         4.2     Local env:      (from dev/app)
-                - Streamlit:      streamlit run lit_index.py --server.port 48400
-                - FastAPI:        uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 48300
+                - streamlit:      streamlit run lit_index.py --server.port 48400
+                - fastAPI:        uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 48300
+
 
 
     Section 5:  How to build
@@ -73,8 +74,6 @@
 
 #--- prereqs:  local development
 - install miniconda
-    - conda create --name env_capstone python=3.10.8
-    - conda activate env_capstone
     - conda install pandas matplotlib ipykernel 
     - pip install sklearn scikit-learn fastapi uvicorn
 - pip list --format=freeze > env_capstone_py3.10.8.txt

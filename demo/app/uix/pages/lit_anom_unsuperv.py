@@ -49,7 +49,7 @@ def run():
         #--- get unsupervised predictions
         #pdfFeatEng = libClaims.do_featEng(pdfClaims)
         pdfPred = libClaims.get_kmeansPredict(pdfClaims)
-        pdfSample = pdfPred.sample(50)
+        pdfSample = pdfPred.sample(100)
         pdfSample['providerId'] = pdfSample['Provider'].str[3:].astype(np.float64)
 
 
@@ -71,13 +71,23 @@ def run():
         col1, col2 = st.columns(2)
 
 
-        #--- chart KMeans clusters")
+        #--- chart KMeans clusters":  InscClaimAmtReimbursed
         chart_KMeansClusters(pdfSample, "Age", "InscClaimAmtReimbursed", col1)
-
-
-        #--- chart KMeans clusters")
         chart_KMeansClusters(pdfSample, "providerId", "InscClaimAmtReimbursed", col2)
 
+
+        #--- chart cluster bars
+        chart_KMeansBars(pdfSample, "cluster", "InscClaimAmtReimbursed", col1)
+        chart_KMeansBars(pdfSample, "cluster", "DeductibleAmtPaid", col2)
+
+        chart_KMeansBars(pdfSample, "cluster", "IPAnnualReimbursementAmt", col1)
+        chart_KMeansBars(pdfSample, "cluster", "IPAnnualDeductibleAmt", col2)
+    
+        chart_KMeansBars(pdfSample, "cluster", "OPAnnualReimbursementAmt", col1)
+        chart_KMeansBars(pdfSample, "cluster", "OPAnnualDeductibleAmt", col2)
+    
+        chart_KMeansBars(pdfSample, "cluster", "ChronicCond_Heartfailure", col1)
+        chart_KMeansBars(pdfSample, "cluster", "ChronicCond_KidneyDisease", col2)
 
     except TypeError as e:
         print("ERROR (litAnomUnsuperv.run_typeError):  ", e)
@@ -89,8 +99,14 @@ def run():
 
 
 def chart_clusterDistr(pdfSample):
-    pdfClustDistr = pdfSample['cluster'].value_counts()
+    #pdfClustDistr = pdfSample['cluster'].value_counts()
+    pdfBar = pdfSample
+    pdfCluster0 = pdfBar[pdfBar['cluster'] == 0] 
+    pdfCluster1 = pdfBar[pdfBar['cluster'] == 1] 
+    pdfCluster2 = pdfBar[pdfBar['cluster'] == 2] 
 
+    kstrTitle = "(KMeans Clusters) Claims data"
+    #--- chart 
     fig = go.Figure(
         layout=dict(
             legend=dict(groupclick="toggleitem"),
@@ -101,10 +117,27 @@ def chart_clusterDistr(pdfSample):
 
     fig.add_trace(
         go.Bar(
-            x=pdfClustDistr.index,
-            y=pdfClustDistr.values,
+            x=pdfCluster0['cluster'],
+            y=pdfCluster0['cluster'].value_counts(),
+            name='cluster0'
         )
     )
+
+    if (pdfCluster1.shape[0]>0):
+        fig.add_trace(
+            go.Bar(
+                x=pdfCluster1['cluster'],
+                y=pdfCluster1['cluster'].value_counts(),
+                name='cluster1'
+            )) 
+
+    if (pdfCluster2.shape[0]>0):
+        fig.add_trace(
+            go.Bar(
+                x=pdfCluster2['cluster'],
+                y=pdfCluster2['cluster'].value_counts(),
+                name='cluster2'
+            )) 
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -149,6 +182,48 @@ def chart_KMeansClusters(pdfSample, strXFeature, strYFeature, stCol):
                 x=pdfCluster2[strXFeature],
                 y=pdfCluster2[strYFeature],
                 mode='markers',
+                name='cluster2'
+            )) 
+    stCol.plotly_chart(fig, use_container_width=True)
+
+
+def chart_KMeansBars(pdfSample, strXFeature, strYFeature, stCol):
+    pdfBar = pdfSample
+    pdfCluster0 = pdfBar[pdfBar['cluster'] == 0] 
+    pdfCluster1 = pdfBar[pdfBar['cluster'] == 1] 
+    pdfCluster2 = pdfBar[pdfBar['cluster'] == 2] 
+
+    kstrTitle = "(KMeans Clusters) Claims data"
+    #--- chart 
+    fig = go.Figure(
+        layout=dict(
+            legend=dict(groupclick="toggleitem"),
+            xaxis=dict(title=strXFeature),
+            yaxis=dict(title=strYFeature)
+        )
+    )
+
+    fig.add_trace(
+        go.Bar(
+            x=pdfCluster0[strXFeature],
+            y=pdfCluster0[strYFeature],
+            name='cluster0'
+        )
+    )
+
+    if (pdfCluster1.shape[0]>0):
+        fig.add_trace(
+            go.Bar(
+                x=pdfCluster1[strXFeature],
+                y=pdfCluster1[strYFeature],
+                name='cluster1'
+            )) 
+
+    if (pdfCluster2.shape[0]>0):
+        fig.add_trace(
+            go.Bar(
+                x=pdfCluster2[strXFeature],
+                y=pdfCluster2[strYFeature],
                 name='cluster2'
             )) 
     stCol.plotly_chart(fig, use_container_width=True)
