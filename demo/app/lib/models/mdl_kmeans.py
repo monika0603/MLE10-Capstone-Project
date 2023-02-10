@@ -12,13 +12,15 @@ m_kstrBinModelPath = libPaths.pth_binModels
 #m_kstrPcaModelPath = m_kstrBinModelPath + 'pca_kmeans_unsuperv_colab_v1.2.1.pkl'
 m_kstrPcaModelPath_111 = m_kstrBinModelPath + 'claims_pca_v1.1.1_27cols.pkl'            #--- ERROR:  __randomstate_ctor() takes from 0 to 1 positional arguments but 2 were given
 m_kstrPcaModelPath_121 = m_kstrBinModelPath + 'claims_pca_v1.2.1_27cols.pkl'
-m_kstrPcaModelPath = m_kstrPcaModelPath_111
+m_kstrPcaModelPath_claims_py3816_sk111hp = m_kstrBinModelPath + 'claims_pca_py3816_sk111hp_27cols.pkl'
+m_kstrPcaModelPath = m_kstrPcaModelPath_claims_py3816_sk111hp
 
 #m_kstrKmeansModelPath = m_kstrBinModelPath + 'kmeans_unsuperv_colab.pkl'
 #m_kstrKmeansModelPath = m_kstrBinModelPath + 'kmn_unsuperv_colab_v1.2.1.pkl'
 m_kstrModelPath_111 = m_kstrBinModelPath + 'claims_kmn_v1.1.1_22cols.pkl'            #--- ERROR:  __randomstate_ctor() takes from 0 to 1 positional arguments but 2 were given
 m_kstrModelPath_121 = m_kstrBinModelPath + 'claims_kmn_v1.2.1_22cols.pkl'
-m_kstrKmeansModelPath = m_kstrModelPath_111
+m_kstrModelPath_claims_py3816_sk111hp = m_kstrBinModelPath + 'claims_kmn_py3816_sk111hp_22cols.pkl'
+m_kstrKmeansModelPath = m_kstrModelPath_claims_py3816_sk111hp
 
 m_blnTraceOn = True
 
