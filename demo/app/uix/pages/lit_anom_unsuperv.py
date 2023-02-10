@@ -11,25 +11,38 @@ import lib.utils as libUtils
 import sys
 
 description = "Anomaly Detection - Unsupervised"
-m_kbln_traceOn = False                                  #--- enable/disable module level tracing
+m_kblnTraceOn = False                                  #--- enable/disable module level tracing
 
 def run():
     #--- note:  in python, you need to specify global scope for fxns to access module-level variables 
-    global m_kbln_traceOn
+    global m_kblnTraceOn
     print("\nINFO (lit_about.run)  loading ", description, " page ...") 
+
 
     try:
 
         #--- page settings
-        if (m_kbln_traceOn):  print("TRACE (litAnomUnSuperv.run):  Initialize Page Settings ...")
+        if (m_kblnTraceOn):  print("TRACE (litAnomUnSuperv.run):  Initialize Page Settings ...")
         st.header("Claims Anomalies - Unsupervised Approach (KMeans)")
 
-        #--- TODO:
-        #prep a claims test data file
-        #provide a file drag/drop
+
+        #--- provide file drag/drop capability
+        m_blnDisableDragDrop = False
+        if(not m_blnDisableDragDrop): 
+            #btnSave = st.button("Save")
+            pklDropped = st.file_uploader("Upload a Claims Dataset", type=["pkl"])
+            m_blnDisableDragDrop = (pklDropped is None)
+
 
         #--- show:  raw claims data analysis
-        if (m_kbln_traceOn):  print("TRACE (litAnomUnsuperv.run):  Show Raw Claims Dataframe ...")
+        if (m_kblnTraceOn):  print("TRACE (litAnomUnSuperv.run):  load raw claims data ...")
+        if (m_blnDisableDragDrop):
+            pdfClaims = libClaims.load_claims(False)
+        else:
+            pdfClaims = pd.read_pickle(pklDropped)        
+
+        #--- show:  raw claims data analysis
+        if (m_kblnTraceOn):  print("TRACE (litAnomUnsuperv.run):  Show Raw Claims Dataframe ...")
         pdfClaims = libClaims.load_claims(False)
 
 
@@ -41,17 +54,12 @@ def run():
 
 
         #--- save this file locally as a pkl
-        """         from datetime import date
-                import time
-                strDteNow = date.today().strftime('%Y%m%d')
-                strTimeNow = time.strftime('%H%M%S')
-                strProvTestFile = libUtils.pth_data + strDteNow + strTimeNow + "_claimsTestSample.pkl"
-                pd.to_pickle(pdfClaims.sample(50), strProvTestFile) """
+        #btnSave_testFile(pdfClaims, pdfPred)
 
 
         #--- table of claims and clusters, sorted by InscClaimAmt Reimbursed
         pdfTopClaims = pdfSample.sort_values(by=["cluster", "InscClaimAmtReimbursed"], ascending=False)
-        if (m_kbln_traceOn):  print("TRACE (litAnomUnsuperv.run):  Show $claims reimbursed by cluster ...")
+        if (m_kblnTraceOn):  print("TRACE (litAnomUnsuperv.run):  Show $claims reimbursed by cluster ...")
         st.markdown("(Top) Ins Claim Reimbursed by Cluster")
         st.dataframe(pdfTopClaims)
 
@@ -144,3 +152,41 @@ def chart_KMeansClusters(pdfSample, strXFeature, strYFeature, stCol):
                 name='cluster2'
             )) 
     stCol.plotly_chart(fig, use_container_width=True)
+
+
+
+def btnSave_testFile(pdfClaims, pdfPred):
+    #--- get all claims for all anoms
+    """     print("TRACE (lit_anom_unsuperv.btnSave_testFile)  query anoms ... ", pdfPred.head(10))
+        pdfAnomClaims = pdfPred[pdfPred['hasAnom?'] > 0] 
+        #pdfAnomProv = pdfAnomProv['Provider']
+
+        #--- filter claims by anomProviders
+        print("TRACE (lit_anom_unsuperv.btnSave_testFile)  filter claims ... ")
+        pdfClaimAnom = pdfClaims[pdfClaims['Provider'].isin(pdfAnomProv['Provider'])]
+        pdfClaimNoAnom = pdfClaims[~pdfClaims['Provider'].isin(pdfAnomProv['Provider'])]
+        lngNumAnoms = len(pdfClaimAnom.index)
+        lngNumOk = len(pdfClaimNoAnom.index)
+        print("TRACE (lit_anom_unsuperv.btnSave_testFile)  #anoms: ", lngNumAnoms, ",  !anoms: ", lngNumOk)
+
+        #--- get a sample for remaining records
+        print("TRACE (lit_anom_unsuperv.btnSave_testFile)  sampling claims ... ")
+        pdfSave = pd.concat([pdfClaimAnom.sample(frac=0.6), pdfClaimNoAnom.sample(frac=0.1)]) """
+
+    pdfSave = pdfClaims.sample(frac=0.1)
+
+    print("TRACE (lit_anom_unsuperv.btnSave_testFile)  saving ... ")
+    saveProviderTestData(pdfSave)
+
+
+def saveProviderTestData(pdfTestData):
+
+    #--- save the file
+    from datetime import date
+    import time
+    import pickle
+    strDteNow = date.today().strftime('%Y%m%d')
+    strTimeNow = time.strftime('%H%M%S')
+    strProvTestFile = libUtils.pth_data + strDteNow + strTimeNow + "_claimsTestSample.pkl"
+    #pd.to_pickle(pdfClaims.sample(200), strProvTestFile,  protocol=pickle.HIGHEST_PROTOCOL) 
+    pdfTestData.to_pickle(strProvTestFile, protocol=pickle.HIGHEST_PROTOCOL)

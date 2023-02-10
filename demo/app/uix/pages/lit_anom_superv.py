@@ -11,89 +11,102 @@ import lib.utils as libUtils
 import sys
 
 description = "Anomaly Detection - Supervised"
-m_kbln_traceOn = False                                  #--- enable/disable module level tracing
+m_kblnTraceOn = True                                  #--- enable/disable module level tracing
 
 def run():
     #--- note:  in python, you need to specify global scope for fxns to access module-level variables 
-    global m_kbln_traceOn
+    global m_kbln_TraceOn
     print("\nINFO (lit_about.run)  loading ", description, " page ...") 
 
-    try:
 
-        #--- page settings
-        if (m_kbln_traceOn):  print("TRACE (litAnomSuperv.run):  Initialize Page Settings ...")
-        st.header("Provider Anomalies - Supervised Approach (XG Boost)")
+    #--- page settings
+    if (m_kblnTraceOn):  print("TRACE (litAnomSuperv.run):  Initialize Page Settings ...")
+    st.header("Provider Anomalies - Supervised Approach (XG Boost)")
 
-        #--- TODO:
-        #prep a grouped test data file
-        #provide a file drag/drop
-
-        #--- show:  raw claims data analysis
-        if (m_kbln_traceOn):  print("TRACE (litAnomSuperv.run):  Show Raw Claims Dataframe ...")
-        pdfClaims = libClaims.load_claims(False)
+    #--- provide file drag/drop capability
+    m_blnDisableDragDrop = False
+    if(not m_blnDisableDragDrop): 
+        #btnSave = st.button("Save")
+        pklDropped = st.file_uploader("Upload a Claims Dataset", type=["pkl"])
+        m_blnDisableDragDrop = (pklDropped is None)
 
 
-        #--- get supervised predictions
-        pdfFeatEng = libClaims.do_featEng(pdfClaims)
-        pdfPred = libProviders.get_xgbPredict(pdfFeatEng)
-        pdfSample = pdfPred.sample(50)
+    #if (True):
+        try:
 
-    except TypeError as e:
-        print("ERROR (litAnomSuperv.run_typeError1):  ", e)
+            #--- show:  raw claims data analysis
+            if (m_kblnTraceOn):  print("TRACE (litAnomSuperv.run):  load raw claims data ...")
+            if (m_blnDisableDragDrop):
+                pdfClaims = libClaims.load_claims(False)
+            else:
+                pdfClaims = pd.read_pickle(pklDropped)
 
-    except:
-        e = sys.exc_info()
-        print("ERROR (litAnomSuperv.run_genError1):  ", e)  
+            #--- get supervised predictions
+            if (m_kblnTraceOn):  print("TRACE (litAnomSuperv.run):  doFeatEng (claims) ...")
+            pdfFeatEng = libClaims.do_featEng(pdfClaims)
 
+            if (m_kblnTraceOn):  print("TRACE (litAnomSuperv.run):  perform xgb prediction ...")
+            pdfPred = libProviders.get_xgbPredict(pdfFeatEng)
 
-    try:
-        #--- save this file locally as a pkl
-        """         from datetime import date
-                import time
-                strDteNow = date.today().strftime('%Y%m%d')
-                strTimeNow = time.strftime('%H%M%S')
-                strProvTestFile = libUtils.pth_data + strDteNow + strTimeNow + "_provTestSample.pkl"
-                pd.to_pickle(pdfClaims.sample(50), strProvTestFile) """
-        
+            if (m_kblnTraceOn):  print("TRACE (litAnomSuperv.run):  get sample ...")
+            lngSampleSize = min(50, len(pdfPred.index))            
+            pdfSample = pdfPred.sample(lngSampleSize)
 
-        #--- table sorted $insClaims reimbursed by provider
-        #--- display providers with predictions, sorted by InscClaimAmt Reimbursed
-        pdfTopClaims = pdfSample.sort_values(by=["InscClaimAmtReimbursed"], ascending=False)
-        if (m_kbln_traceOn):  print("TRACE (litAnomSuperv.run):  Show $claims reimbursed by provider ...")
-        st.markdown("(Top) Ins Reimbursed by Provider")
-        st.dataframe(pdfTopClaims)
+            #--- save a test file
+            #if (btnSave):
+            #btnSave_testFile(pdfClaims, pdfPred)
 
+        except TypeError as e:
+            print("ERROR (litAnomSuperv.run_typeError1):  ", e)
 
-        #--- chart Top Insurance claims ($) by Provider")
-        chart_topInsClaimsByProvider(pdfSample)
+        except:
+            e = sys.exc_info()
+            print("ERROR (litAnomSuperv.run_genError1):  ", e)  
 
 
-        #--- chart Top deductible amts ($) by Provider")
-        chart_topDeductiblePaidByProvider(pdfSample)
+        try:
+            #--- save this file locally as a pkl
+            #btnSave_testFile(pdfClaims, pdfPred)
+            
+
+            #--- table sorted $insClaims reimbursed by provider
+            #--- display providers with predictions, sorted by InscClaimAmt Reimbursed
+            pdfTopClaims = pdfSample.sort_values(by=["InscClaimAmtReimbursed"], ascending=False)
+            if (m_kblnTraceOn):  print("TRACE (litAnomSuperv.run):  Show $claims reimbursed by provider ...")
+            st.markdown("(Top) Ins Reimbursed by Provider")
+            st.dataframe(pdfTopClaims)
 
 
-        #--- chart Top IP Annual Reimbursement amts ($) by Provider")
-        chart_topIPAnnualReimbAmtByProvider(pdfSample)
+            #--- chart Top Insurance claims ($) by Provider")
+            chart_topInsClaimsByProvider(pdfSample)
 
 
-        #--- chart Top IP Annual Reimbursement amts ($) by Provider")
-        chart_topIPAnnualDeductAmtByProvider(pdfSample)
+            #--- chart Top deductible amts ($) by Provider")
+            chart_topDeductiblePaidByProvider(pdfSample)
 
 
-        #--- chart Top IP Annual Reimbursement amts ($) by Provider")
-        chart_topOPAnnualReimbAmtByProvider(pdfSample)
+            #--- chart Top IP Annual Reimbursement amts ($) by Provider")
+            chart_topIPAnnualReimbAmtByProvider(pdfSample)
 
 
-        #--- chart Top IP Annual Reimbursement amts ($) by Provider")
-        chart_topOPAnnualDeductAmtByProvider(pdfSample)
+            #--- chart Top IP Annual Reimbursement amts ($) by Provider")
+            chart_topIPAnnualDeductAmtByProvider(pdfSample)
 
 
-    except TypeError as e:
-        print("ERROR (litAnomSuperv.run_typeError):  ", e)
+            #--- chart Top IP Annual Reimbursement amts ($) by Provider")
+            chart_topOPAnnualReimbAmtByProvider(pdfSample)
 
-    except:
-        e = sys.exc_info()
-        print("ERROR (litAnomSuperv.run_genError):  ", e)  
+
+            #--- chart Top IP Annual Reimbursement amts ($) by Provider")
+            chart_topOPAnnualDeductAmtByProvider(pdfSample)
+
+
+        except TypeError as e:
+            print("ERROR (litAnomSuperv.run_typeError2):  ", e)
+
+        except:
+            e = sys.exc_info()
+            print("ERROR (litAnomSuperv.run_genError2):  ", e)  
 
 
 
@@ -316,3 +329,40 @@ def chart_topInsClaimsByProvider(pdfSample):
             )) 
 
         st.plotly_chart(fig, use_container_width=True)
+
+
+
+def btnSave_testFile(pdfClaims, pdfPred):
+    #--- get all providers for all anoms
+    #print("TRACE (lit_anom_superv.btnSave_testFile)  query anoms ... ", pdfPred.head(10))
+    pdfAnomProv = pdfPred[pdfPred['hasAnom?'] > 0] 
+    #pdfAnomProv = pdfAnomProv['Provider']
+
+    #--- filter claims by anomProviders
+    print("TRACE (lit_anom_superv.btnSave_testFile)  filter claims ... ")
+    pdfClaimAnom = pdfClaims[pdfClaims['Provider'].isin(pdfAnomProv['Provider'])]
+    pdfClaimNoAnom = pdfClaims[~pdfClaims['Provider'].isin(pdfAnomProv['Provider'])]
+    lngNumAnoms = len(pdfClaimAnom.index)
+    lngNumOk = len(pdfClaimNoAnom.index)
+    print("TRACE (lit_anom_superv.btnSave_testFile)  #anoms: ", lngNumAnoms, ",  !anoms: ", lngNumOk)
+
+    #--- get a sample for remaining records
+    print("TRACE (lit_anom_superv.btnSave_testFile)  sampling claims ... ")
+    pdfSave = pd.concat([pdfClaimAnom.sample(frac=0.6), pdfClaimNoAnom.sample(frac=0.1)])
+
+    print("TRACE (lit_anom_superv.btnSave_testFile)  saving ... ")
+    saveProviderTestData(pdfSave)
+
+
+def saveProviderTestData(pdfTestData):
+
+    #--- save the file
+    from datetime import date
+    import time
+    import pickle
+    strDteNow = date.today().strftime('%Y%m%d')
+    strTimeNow = time.strftime('%H%M%S')
+    strProvTestFile = libUtils.pth_data + strDteNow + strTimeNow + "_provTestSample.pkl"
+    #pd.to_pickle(pdfClaims.sample(200), strProvTestFile,  protocol=pickle.HIGHEST_PROTOCOL) 
+    pdfTestData.to_pickle(strProvTestFile, protocol=pickle.HIGHEST_PROTOCOL)
+
