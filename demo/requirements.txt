@@ -1,12 +1,5 @@
-#--- conda create --name env_capstone python=3.10.8
-#--- conda 
+#--- conda create --name env_capstone python=3.8.16
 
-fastapi
-httpx
-uvicorn
-
-numpy>=1.21.6                   #--- colab:  1.23.5
-pandas>=1.3.5                   #--- api:    1.5.2
-pickle
-scikit-learn>=1.2.0             #--- colab:  1.0.2
-sklearn
+streamlit
+plotly
+scikit-learn==1.1.1
