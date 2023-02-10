@@ -4,8 +4,9 @@ import lib.claims as libClaims
 
 from lib.models import mdl_utils, mdl_xgb, mdl_logR, mdl_svm
 from lib.models import mdl_autoenc, mdl_kmeans
+import sys
 
-
+m_blnTraceOn = True
 
 #--- load, merge data from file
 m_kstrDataPath = libPaths.pth_data
@@ -26,7 +27,7 @@ def load_providers(blnIsTrain=False):
 
 #--- feat eng
 def do_featEng(pdfClaimsFeatEng, blnIsTrain=False):
-    print("INFO (providers.doFeatEng):  blnIsTrain, ", blnIsTrain)
+    if (m_blnTraceOn): print("TRACE (providers.doFeatEng):  blnIsTrain, ", blnIsTrain)
     pdfFeatEng = pdfClaimsFeatEng
 
     #--- add new features to assist with predictions
@@ -46,7 +47,7 @@ def get_logrPredict(pdfTestClaims):
 
     #--- logistic regression predictions;  load test data
     pdfClaims = pdfTestClaims
-    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+    #print("INFO (providers.get_logrPredict)  pdfClaims.shape):  ", pdfClaims.shape)
 
     pdfFeatEng = do_featEng(pdfClaims, False)
     npaScaled = mdl_utils.doProviders_stdScaler(pdfFeatEng, False)
@@ -71,22 +72,22 @@ def get_svmPredict(pdfTestClaims):
 
     #--- support vector machine predictions;  load test data
     pdfClaims = pdfTestClaims
-    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+    if (m_blnTraceOn):  print("TRACE (providers.get_svmPredict) pdfClaims.shape:  ", pdfClaims.shape)
 
     pdfFeatEng = do_featEng(pdfClaims, False)
     npaScaled = mdl_utils.doProviders_stdScaler(pdfFeatEng, False)
     pdfScaled = mdl_utils.doProviders_stdScaler_toPdf(npaScaled)
-    #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
+    if (m_blnTraceOn):  print("TRACE (providers.get_svmPredict) npaScaled.shape:  ", npaScaled.shape)
 
     ndaPredict = mdl_svm.predict(npaScaled)
-    #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
+    if (m_blnTraceOn):  print("TRACE (providers.get_svmPredict) npaPredict.shape:  ", ndaPredict.shape)
 
     pdfPredict = pd.DataFrame(ndaPredict)
-    #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+    if (m_blnTraceOn):  print("TRACE (providers.get_svmPredict) pdfPredict.shape:  ", pdfPredict.shape)
 
     #--- stitch the grouped data with the labels
     pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
-    #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
+    if (m_blnTraceOn):  print("TRACE (providers.get_svmPredict) pdfResults.shape:  ", pdfResults.shape)
 
     pdfResults.insert(0, "hasAnom?", pdfPredict[0])
     return pdfResults    
@@ -95,24 +96,30 @@ def get_svmPredict(pdfTestClaims):
 
 def get_xgbPredict(pdfTestClaims):
 
-    #--- load test data
-    pdfClaims = pdfTestClaims
-    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+    try:
+        #--- load test data
+        pdfClaims = pdfTestClaims
+        if (m_blnTraceOn):  print("TRACE (providers.get_xgbPredict)  pdfClaims.shape):  ", pdfClaims.shape)
 
-    pdfFeatEng = do_featEng(pdfClaims, False)
-    npaScaled = mdl_utils.doProviders_stdScaler(pdfFeatEng, False)
-    pdfScaled = mdl_utils.doProviders_stdScaler_toPdf(npaScaled)
-    #print("INFO (predict.npaScaled.shape):  ", npaScaled.shape)
+        pdfFeatEng = do_featEng(pdfClaims, False)
+        npaScaled = mdl_utils.doProviders_stdScaler(pdfFeatEng, False)
+        pdfScaled = mdl_utils.doProviders_stdScaler_toPdf(npaScaled)
+        #if (m_blnTraceOn):  print("TRACE (predict.npaScaled.shape1):  ", npaScaled.shape)
 
-    ndaPredict = mdl_xgb.predict(npaScaled)
-    #print("INFO (predict.npaPredict.shape):  ", ndaPredict.shape)
+        ndaPredict = mdl_xgb.predict(npaScaled)
+        #if (m_blnTraceOn):  print("TRACE (predict.npaPredict.shape2):  ", ndaPredict.shape)
 
+    except:
+        e = sys.exc_info()
+        print("ERROR (providers.get_xgbPredict_genError):  ", e)  
+    
+    
     pdfPredict = pd.DataFrame(ndaPredict)
-    #print("INFO (predict.pdfPredict.shape):  ", pdfPredict.shape)
+    #if (m_blnTraceOn):  print("TRACE (providers.get_xgbPredict) pdfPredict.shape:  ", pdfPredict.shape)
 
     #--- stitch the grouped data with the labels
     pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
-    #print("INFO (predict.pdfGrpFeatEng.shape):  ", pdfResults.shape)
+    #if (m_blnTraceOn):  print("TRACE (providers.get_xgbPredict) pdfResults.shape:  ", pdfResults.shape)
 
     pdfResults.insert(0, "hasAnom?", pdfPredict[0])
     return pdfResults
@@ -123,7 +130,7 @@ def get_encPredict(pdfTestClaims):
 
     #--- principal component analysis predictions;  load test data
     pdfClaims = pdfTestClaims
-    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+    if (m_blnTraceOn):  print("TRACE (providers.get_encPredict) ppdfClaims.shape:  ", pdfClaims.shape)
 
     pdfFeatEng = do_featEng(pdfClaims, False)                           #--- not grouped by provider
     

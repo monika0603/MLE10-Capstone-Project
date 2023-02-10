@@ -8,12 +8,15 @@ import lib.claims as libClaims
 import lib.providers as libProviders
 import lib.utils as libUtils
 
+import sys
+
 description = "Anomaly Detection - Supervised"
 m_kbln_traceOn = False                                  #--- enable/disable module level tracing
 
 def run():
     #--- note:  in python, you need to specify global scope for fxns to access module-level variables 
     global m_kbln_traceOn
+    print("\nINFO (lit_about.run)  loading ", description, " page ...") 
 
     try:
 
@@ -35,7 +38,15 @@ def run():
         pdfPred = libProviders.get_xgbPredict(pdfFeatEng)
         pdfSample = pdfPred.sample(50)
 
+    except TypeError as e:
+        print("ERROR (litAnomSuperv.run_typeError1):  ", e)
 
+    except:
+        e = sys.exc_info()
+        print("ERROR (litAnomSuperv.run_genError1):  ", e)  
+
+
+    try:
         #--- save this file locally as a pkl
         """         from datetime import date
                 import time
@@ -51,11 +62,6 @@ def run():
         if (m_kbln_traceOn):  print("TRACE (litAnomSuperv.run):  Show $claims reimbursed by provider ...")
         st.markdown("(Top) Ins Reimbursed by Provider")
         st.dataframe(pdfTopClaims)
-
-
-        #--- table filtered list of anomalies
-        #st.markdown("(Sample) Provider Anomalies Claims Data:  Providers, Beneficiaries, Physicians, Procedures, etc")
-        #st.dataframe(dfAnoms)
 
 
         #--- chart Top Insurance claims ($) by Provider")
@@ -81,8 +87,13 @@ def run():
         #--- chart Top IP Annual Reimbursement amts ($) by Provider")
         chart_topOPAnnualDeductAmtByProvider(pdfSample)
 
+
     except TypeError as e:
-        print("ERROR (litAnomSuperv.run):  ", e)
+        print("ERROR (litAnomSuperv.run_typeError):  ", e)
+
+    except:
+        e = sys.exc_info()
+        print("ERROR (litAnomSuperv.run_genError):  ", e)  
 
 
 

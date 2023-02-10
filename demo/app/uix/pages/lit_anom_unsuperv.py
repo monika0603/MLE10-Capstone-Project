@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 import lib.claims as libClaims
 import lib.providers as libProviders
 import lib.utils as libUtils
+import sys
 
 description = "Anomaly Detection - Unsupervised"
 m_kbln_traceOn = False                                  #--- enable/disable module level tracing
@@ -70,7 +71,12 @@ def run():
 
 
     except TypeError as e:
-        print("ERROR (litAnomSuperv.run):  ", e)
+        print("ERROR (litAnomUnsuperv.run_typeError):  ", e)
+
+    except:
+        e = sys.exc_info()
+        print("ERROR (litAnomUnsuperv.run_genError):  ", e)        
+
 
 
 def chart_clusterDistr(pdfSample):

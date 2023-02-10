@@ -190,7 +190,7 @@ def get_kmeansPredict(pdfTestClaims):
 
     #--- load test data
     pdfClaims = pdfTestClaims
-    #print("INFO (predict.pklClaims.shape):  ", pdfClaims.shape)
+    #print("INFO (claims.get_kmeansPredict)  pdfClaims.shape):  ", pdfClaims.shape)
 
     #--- perform featEng, std scaling
     print("TRACE: claims.kmeansPredict  perform featEng, stdScaling ...")
