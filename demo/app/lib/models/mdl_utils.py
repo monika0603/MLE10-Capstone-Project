@@ -14,7 +14,8 @@ m_kstrBinModelPath = libPaths.pth_binModels
 #m_kstrScalerPath_claims = m_kstrBinModelPath + 'stdClaims_scaler_colab_v1.2.1.pkl'   
 m_kstrScalerPath_claims111 = m_kstrBinModelPath + 'claims_stdScaler_v1.1.1_27cols.pkl'
 m_kstrScalerPath_claims121 = m_kstrBinModelPath + 'claims_stdScaler_v1.2.1_27cols.pkl'
-m_kstrScalerPath_claims = m_kstrScalerPath_claims111
+m_kstrScalerPath_claims_py3816_sk111hp = m_kstrBinModelPath + 'claims_stdScl_py3816_sk111hp_27cols.pkl'
+m_kstrScalerPath_claims = m_kstrScalerPath_claims_py3816_sk111hp
 
 m_kstrScalerPath_providers111 = m_kstrBinModelPath + 'prov_stdScaler_v1.1.1_32cols.pkl'
 m_kstrScalerPath_providers121 = m_kstrBinModelPath + 'prov_stdScaler_v1.2.1_32cols.pkl'
