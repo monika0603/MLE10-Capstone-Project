@@ -102,27 +102,41 @@ def get_xgbPredict(pdfTestClaims):
         pdfClaims = pdfTestClaims
         if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict)  pdfClaims.shape):  ", pdfClaims.shape)
 
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) doFeatEng (provider) ... ")
         pdfFeatEng = do_featEng(pdfClaims, False)
+
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) doStdScaler ... ")
         npaScaled = mdl_utils.doProviders_stdScaler(pdfFeatEng, False)
+
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) doStdScaler_toPdf ... ")
         pdfScaled = mdl_utils.doProviders_stdScaler_toPdf(npaScaled)
         #if (m_blnTraceOn):  print("TRACE (predict.npaScaled.shape1):  ", npaScaled.shape)
 
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) run prediction ... ")
         ndaPredict = mdl_xgb.predict(npaScaled)
         #if (m_blnTraceOn):  print("TRACE (predict.npaPredict.shape2):  ", ndaPredict.shape)
+
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) convert to dataframe ... ")
+        pdfPredict = pd.DataFrame(ndaPredict)
+        pdfAnoms = pdfPredict[pdfPredict[0] > 0]
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) pdfPredict.shape:  ", pdfPredict.shape)
+        if (m_blnTraceOn):  print("TRACE (providers.get_xgbPredict) #anoms:  ", len(pdfAnoms.index))
+
+        #--- group data by provider
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) group claims by provider ... ")
+        pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) pdfResults.shape:  ", pdfResults.shape)
+
+        #--- stitch the grouped data with the labels
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) merge labels into dataset ... ")
+        pdfResults.insert(0, "hasAnom?", pdfPredict[0])
 
     except:
         e = sys.exc_info()
         print("ERROR (providers.get_xgbPredict_genError):  ", e)  
     
     
-    pdfPredict = pd.DataFrame(ndaPredict)
-    if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) pdfPredict.shape:  ", pdfPredict.shape)
-
-    #--- stitch the grouped data with the labels
-    pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
-    if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) pdfResults.shape:  ", pdfResults.shape)
-
-    pdfResults.insert(0, "hasAnom?", pdfPredict[0])
+    if (m_blnTraceOn):  print("TRACE (providers.get_xgbPredict) proc complete; return ... ")
     return pdfResults
 
 
