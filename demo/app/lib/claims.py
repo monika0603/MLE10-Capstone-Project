@@ -5,6 +5,9 @@ from lib.models import mdl_utils, mdl_xgb, mdl_logR, mdl_svm
 from lib.models import mdl_autoenc, mdl_kmeans
 
 
+m_blnTraceOn = True
+m_blnTrace2On = False
+
 #--- load, merge data from file
 m_kstrDataPath = libPaths.pth_data
 m_kstrModelPath = libPaths.pth_model
@@ -96,7 +99,8 @@ def loadPkl_claims(blnIsTrain=False):
 
 #--- feat eng
 def do_featEng(pdfLoaded, blnIsTrain=False):
-    print("INFO (claims.doFeatEng):  blnIsTrain, ", blnIsTrain)
+    if (m_blnTrace2On):  print("INFO (claims.doFeatEng):  blnIsTrain, ", blnIsTrain)
+    
     #--- remove cols
     aryColsToDrop = ['BeneID', 'ClaimID', 'ClaimStartDt','ClaimEndDt','AttendingPhysician',
                      'OperatingPhysician', 'OtherPhysician', 'ClmDiagnosisCode_1',

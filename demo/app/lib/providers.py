@@ -7,6 +7,7 @@ from lib.models import mdl_autoenc, mdl_kmeans
 import sys
 
 m_blnTraceOn = True
+m_blnTrace2On = False
 
 #--- load, merge data from file
 m_kstrDataPath = libPaths.pth_data
@@ -99,7 +100,7 @@ def get_xgbPredict(pdfTestClaims):
     try:
         #--- load test data
         pdfClaims = pdfTestClaims
-        if (m_blnTraceOn):  print("TRACE (providers.get_xgbPredict)  pdfClaims.shape):  ", pdfClaims.shape)
+        if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict)  pdfClaims.shape):  ", pdfClaims.shape)
 
         pdfFeatEng = do_featEng(pdfClaims, False)
         npaScaled = mdl_utils.doProviders_stdScaler(pdfFeatEng, False)
@@ -115,11 +116,11 @@ def get_xgbPredict(pdfTestClaims):
     
     
     pdfPredict = pd.DataFrame(ndaPredict)
-    #if (m_blnTraceOn):  print("TRACE (providers.get_xgbPredict) pdfPredict.shape:  ", pdfPredict.shape)
+    if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) pdfPredict.shape:  ", pdfPredict.shape)
 
     #--- stitch the grouped data with the labels
     pdfResults = pdfFeatEng.groupby(['Provider'], as_index=False).agg('sum')
-    #if (m_blnTraceOn):  print("TRACE (providers.get_xgbPredict) pdfResults.shape:  ", pdfResults.shape)
+    if (m_blnTrace2On):  print("TRACE (providers.get_xgbPredict) pdfResults.shape:  ", pdfResults.shape)
 
     pdfResults.insert(0, "hasAnom?", pdfPredict[0])
     return pdfResults
