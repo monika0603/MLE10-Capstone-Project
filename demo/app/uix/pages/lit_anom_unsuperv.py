@@ -16,6 +16,7 @@ m_kbln_traceOn = False                                  #--- enable/disable modu
 def run():
     #--- note:  in python, you need to specify global scope for fxns to access module-level variables 
     global m_kbln_traceOn
+    print("\nINFO (lit_about.run)  loading ", description, " page ...") 
 
     try:
 
