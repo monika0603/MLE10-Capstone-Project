@@ -2,6 +2,7 @@ import pandas as pd
 import pickle
 import lib.utils as libPaths
 
+m_blnTraceOn = False
 
 #--- load, merge data from file
 m_kstrDataPath = libPaths.pth_data
@@ -11,8 +12,16 @@ m_kstrBinModelPath = libPaths.pth_binModels
 #m_kstrScalerPath_claims = m_kstrBinModelPath + 'stdClaims_scaler_colab.pkl'         #--- does not work for scaling claims data;  from v1.0.2; using 1.1.1
 #m_kstrScalerPath_claims2 = m_kstrBinModelPath + 'std_scaler_unsuperv_colab.pkl'     #--- does not work; expects 32 features 
 #m_kstrScalerPath_claims = m_kstrBinModelPath + 'stdClaims_scaler_colab_v1.2.1.pkl'   
-m_kstrScalerPath_claims = m_kstrBinModelPath + 'claims_stdScaler_v1.1.1_27cols.pkl' 
-m_kstrScalerPath_providers = m_kstrBinModelPath + 'stdProvider_scaler_colab.pkl'
+m_kstrScalerPath_claims111 = m_kstrBinModelPath + 'claims_stdScaler_v1.1.1_27cols.pkl'
+m_kstrScalerPath_claims121 = m_kstrBinModelPath + 'claims_stdScaler_v1.2.1_27cols.pkl'
+m_kstrScalerPath_claims = m_kstrScalerPath_claims111
+
+m_kstrScalerPath_providers111 = m_kstrBinModelPath + 'prov_stdScaler_v1.1.1_32cols.pkl'
+m_kstrScalerPath_providers121 = m_kstrBinModelPath + 'prov_stdScaler_v1.2.1_32cols.pkl'
+m_kstrScalerPath_prov_py3816_sk111 = m_kstrBinModelPath + 'prov_stdScl_py3816_sk111_32cols.pkl'
+m_kstrScalerPath_prov_py3816_sk111hp = m_kstrBinModelPath + 'prov_stdScl_py3816_sk111hp_32cols.pkl'
+m_kstrScalerPath_prov = m_kstrScalerPath_prov_py3816_sk111hp
+
 m_kstrScalerPath_providers_superv = m_kstrBinModelPath + 'gbc_scaler.pkl'
 m_kstrScalerPath_providers_train = m_kstrBinModelPath + "stdProvider_scaler.pkl" 
    
@@ -45,12 +54,12 @@ def doProviders_stdScaler(pdfFeatEng, blnIsTrain=False, hasGroupByProviderCols=T
         X = X.drop(columns=['PotentialFraud'], axis=1)  
     except KeyError:
         #--- likely column not found; invalid fxn call
-        print("ERROR (mdlUtils.doProviders_stdScaler):  Potential Fraud col not found")
+        if (blnIsTrain):  print("ERROR (mdlUtils.doProviders_stdScaler):  Potential Fraud col not found")
 
 
     #--- apply std scaler
     #--- WARN:  scaling is also grouped by provider
-    print("INFO (mdlUtils.doProviders_stdScaler)  cols: ", X.columns)
+    if (m_blnTraceOn):  print("INFO (mdlUtils.doProviders_stdScaler)  cols: ", X.columns)           #--- 32cols
     X_std = fitProviders_txfStdScaler(X, blnIsTrain)
     return X_std
 
@@ -79,7 +88,7 @@ def doClaims_stdScaler(pdfFeatEng, blnIsTrain=False):
         X = X.drop(columns=['PotentialFraud'], axis=1)  
     except KeyError:
         #--- likely column not found; invalid fxn call
-        print("ERROR (mdlUtils.do_stdScaler):  Potential Fraud col not found")
+        if (blnIsTrain):  print("ERROR (mdlUtils.do_stdScaler):  Potential Fraud col not found")
 
 
     #--- apply std scaler
@@ -144,29 +153,29 @@ def fitClaims_stdScaler(pdfData, blnIsTrain=False):
     #strScalerPath = m_kstrScalerPath_claims
     strScalerPath = m_kstrScalerPath_claims
 #    strScalerPath = m_kstrBinModelPath + "stdClaims_scaler_colab.pkl"
-    print("INFO (lib.model.fitClaims_stdScalar):  ", strScalerPath)
+    if (m_blnTraceOn):  print("INFO (lib.model.fitClaims_stdScalar):  ", strScalerPath)
     if (blnIsTrain):
         scaler = StandardScaler()
         sclFit = scaler.fit(pdfData)
         #--- if we train locally;  write out to gbc_scalar.pkl
         #--- we do not want to overwrite the colab version used for test
         strScalerPath = m_kstrBinModelPath + "stdClaims_scaler.pkl"
-        print("WARN (lib.model.fit_stdScalar)  Using local pkl for Train: ", strScalerPath)
+        if (m_blnTraceOn):  print("INFO (lib.model.fit_stdScalar)  Using local pkl for Train: ", strScalerPath)
         with open(strScalerPath, 'wb') as filPkl:
             pickle.dump(sclFit, filPkl)
     else:
         #--- we need to load the pkl file
         import sklearn
-        print("WARN (lib.model.fit_stdScalar)  Using colab pkl for Test: ", strScalerPath)
+        if (m_blnTraceOn):  print("INFO (lib.model.fit_stdScalar)  Using colab pkl for Test: ", strScalerPath)
         with open(strScalerPath, 'rb') as filPkl:
             sclFit = pickle.load(filPkl)
-        print("WARN (libModel.fitClaims_stdScalar)  sclFit.type: ", type(sclFit))
+        if (m_blnTraceOn):  print("TRACE (libModel.fitClaims_stdScalar)  sclFit.type: ", type(sclFit))
 
         #--- testing
         scaler = StandardScaler()
-        print("INFO (libModel.fitClaims_stdScalar)  StdScaler.version: ", scaler.__getstate__()['_sklearn_version'])
-        print("INFO (libModel.fitClaims_stdScalar)  sclFit.version: " , sclFit.__getstate__()['_sklearn_version'])
-        print("INFO (libModel.fitClaims_stdScalar)  sklearn.version: " , sklearn.__version__)
+        if (m_blnTraceOn):  print("TRACE (libModel.fitClaims_stdScalar)  StdScaler.version: ", scaler.__getstate__()['_sklearn_version'])
+        if (m_blnTraceOn):  print("TRACE (libModel.fitClaims_stdScalar)  sclFit.version: " , sclFit.__getstate__()['_sklearn_version'])
+        if (m_blnTraceOn):  print("TRACE (libModel.fitClaims_stdScalar)  sklearn.version: " , sklearn.__version__)
     return sclFit
 
 
@@ -180,7 +189,7 @@ def fitProviders_stdScaler(pdfData, blnIsTrain=False):
     #--- we need to fit the scaler, and then save as a pkl file
     #strScalerPath = m_kstrScalerPath_providers
     #strScalerPath = m_kstrScalerPath_providers_train            
-    strScalerPath = m_kstrScalerPath_providers_superv          #--- works for provider test
+    strScalerPath = m_kstrScalerPath_prov         
     print("INFO (libModel.fitProviders_stdScalar):  ", strScalerPath)
     if (blnIsTrain):
         scaler = StandardScaler()
@@ -188,15 +197,15 @@ def fitProviders_stdScaler(pdfData, blnIsTrain=False):
         #--- if we train locally;  write out to gbc_scalar.pkl
         #--- we do not want to overwrite the colab version used for test
         strScalerPath = m_kstrScalerPath_providers_train       #--- works for provider training
-        print("WARN (libModel.fitProviders_stdScalar)  Using local pkl for Train: ", strScalerPath)
+        if (m_blnTraceOn):  print("TRACE (libModel.fitProviders_stdScalar)  Using local pkl for Train: ", strScalerPath)
         with open(strScalerPath, 'wb') as filPkl:
             pickle.dump(sclFit, filPkl)
     else:
         #--- we need to load the pkl file
-        print("WARN (libModel.fitProviders_stdScalar)  Using colab pkl for Test: ", strScalerPath)
+        if (m_blnTraceOn):  print("TRACE (libModel.fitProviders_stdScalar)  Using colab pkl for Test: ", strScalerPath)
         with open(strScalerPath, 'rb') as filPkl:
             sclFit = pickle.load(filPkl)
-        print("WARN (libModel.fitProviders_stdScalar)  sclFit.type: ", type(sclFit))
+        if (m_blnTraceOn):  print("TRACE (libModel.fitProviders_stdScalar)  sclFit.type: ", type(sclFit))
     return sclFit
 
 
@@ -208,23 +217,23 @@ def fitProviders_stdScalerSuperv(pdfData, blnIsTrain=False):
 
     #--- note:  this is a numpy.ndarray
     #--- we need to fit the scaler, and then save as a pkl file
-    strScalerPath = m_kstrScalerPath_providers
-    print("INFO (libModel.fitProviders_stdScalar):  ", strScalerPath)
+    strScalerPath = m_kstrScalerPath_prov
+    if (m_blnTraceOn):  print("TRACE (libModel.fitProviders_stdScalar):  ", strScalerPath)
     if (blnIsTrain):
         scaler = StandardScaler()
         sclFit = scaler.fit(pdfData)
         #--- if we train locally;  write out to gbc_scalar.pkl
         #--- we do not want to overwrite the colab version used for test
         strScalerPath = m_kstrBinModelPath + "stdProvider_scaler.pkl"
-        print("WARN (libModel.fitProviders_stdScalar)  Using local pkl for Train: ", strScalerPath)
+        if (m_blnTraceOn):  print("TRACE (libModel.fitProviders_stdScalar)  Using local pkl for Train: ", strScalerPath)
         with open(strScalerPath, 'wb') as filPkl:
             pickle.dump(sclFit, filPkl)
     else:
         #--- we need to load the pkl file
-        print("WARN (libModel.fitProviders_stdScalar)  Using colab pkl for Test: ", strScalerPath)
+        if (m_blnTraceOn):  print("TRACE (libModel.fitProviders_stdScalar)  Using colab pkl for Test: ", strScalerPath)
         with open(strScalerPath, 'rb') as filPkl:
             sclFit = pickle.load(filPkl)
-        print("WARN (libModel.fitProviders_stdScalar)  sclFit.type: ", type(sclFit))
+        if (m_blnTraceOn):  print("TRACE (libModel.fitProviders_stdScalar)  sclFit.type: ", type(sclFit))
     return sclFit
 
 
