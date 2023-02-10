@@ -18,32 +18,51 @@
     Section 2:  Background
 
 
+
     Section 3:  How to run the demo
-        3.1     Streamlit:      http://ec2-44-201-155-7.compute-1.amazonaws.com:58080
-        3.2     FastAPI:        http://ec2-44-201-155-7.compute-1.amazonaws.com:58081/docs
+        3.1     AWS EC2:        
+                - Streamlit:    http://ec2-44-201-155-7.compute-1.amazonaws.com:58080
+                - FastAPI:      http://ec2-44-201-155-7.compute-1.amazonaws.com:58081/docs
+
+        3.2     Local env:      
+              - Streamlit:      http://localhost:48400
+                - FastAPI:      http://localhost:48300/docs
 
 
 
     Section 4:  How to deploy
-        4.1     Manual Method
-                - SSH:  ssh into EC2, e.g   
-                    ssh -i "capstone-mle10-imckone.pem" ec2-user@ec2-44-201-155-7.compute-1.amazonaws.com
-                - Conda:    conda activate prod_capstone
-                - Git:      mkdir mle10-capstone
-                            cd mle10*
-                            git init
-                            git config core.sparsecheckout true
-                            echo demo/ >> .git/info/sparse-checkout
-                            git remote add -f capstone https://github.com/monika0603/MLE10-Capstone-Project.git
-                            git pull capstone ftr_demo
-                - Streamlit:
-                    - launch:   cd ~/mle10-capstone/demo/app
-                                streamlit run lit_index.py --server.port 48400
+        4.1     EC2:  Manual Method
+                - ssh:          ssh -i "capstone-mle10-imckone.pem" ec2-user@ec2-44-201-155-7.compute-1.amazonaws.com
+                - conda:        conda activate prod_capstone
+                - git:          cd mle10*/demo/app
+                                git pull capstone ftr_demo
+                - tmux:         tmux a -t demo_streamlit
+                                tmux a -t demo_fastapi
+                - streamlit:    (from demo/app)
+                    - launch:   streamlit run lit_index.py --server.port 58080
+
+        4.2     Local env:      (from dev/app)
+                - Streamlit:      streamlit run lit_index.py --server.port 48400
+                - FastAPI:        uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 48300
 
 
     Section 5:  How to build
-        5.1     Dev Environment
-        5.2     Docker Image
+        5.1     EC2 Environ:
+                - conda:        conda create --name env_capstone python=3.8.16
+                                conda activate env_capstone
+                - pip:          pip install -r requirements.txt
+                - git:          mkdir mle10-capstone
+                                cd mle10*
+                                git init
+                                git config core.sparsecheckout true
+                                echo demo/ >> .git/info/sparse-checkout
+                                git remote add -f capstone https://github.com/monika0603/MLE10-Capstone-Project.git
+                                git pull capstone ftr_demo
+                - tmux:         tmux new -s demo_streamlit
+                                tmux new -s demo_fastapi
+
+        5.2     Local Dev Environment
+        5.3     Docker Image
 
 
     Section 6:  How to dev, update
