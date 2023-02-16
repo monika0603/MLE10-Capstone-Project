@@ -2,6 +2,7 @@
 /demo/app/__pycache__/*.pyc
 /demo/app/bin/models/__pycache__/*.py
 /demo/app/data/*.pkl
+/demo/app/data/*.csv
 /demo/app/lib/__pycache__/*.pyc
 /demo/app/lib/models/__pycache__/*.pyc
 /demo/app/routes/__pycache__/*.py
@@ -9,6 +10,9 @@
 /demo/app/routes/qa/__pycache__/*.pyc
 /demo/app/uix/__pycache__/*.pyc
 /demo/app/uix/pages/__pycache__/*.pyc
+/demo/PREREQS.txt
+/eda/.ipynb_checkpoints/*
+/eda/data/*
 
 
 # private, sensitive files

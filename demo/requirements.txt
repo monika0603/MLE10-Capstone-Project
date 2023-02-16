@@ -1,0 +1,16 @@
+#--- conda create --name env_capstone python=3.8.16
+
+attrs
+blinker
+entrypoints
+fastapi
+ipython-genutils
+jsonschema
+plotly
+pydantic
+PyYAML
+scikit-learn==1.1.1
+six
+streamlit
+urllib3
+uvicorn
