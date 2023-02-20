@@ -27,26 +27,24 @@ description = """
     
     The Healthcare Claims Anomaly API is provided to assist with
 
-    ## Insurance Claims Analysis
-
+    ## Claims Analysis
+    ## Supervised Provider Predictions - Anomaly Detection (XGBoost)
+    ## Unsupervised Claim Predictions - Anomaly Detection (KMeans Cluster)
 
     You will be able to:
-
-    * **Create users** (_not implemented_).
-    * **Read users** (_not implemented_).
     * Analyze Claims data
-    * Identify potential Anomalies
+    * Identify potential Provider Anomalies
+    * Idenitfy potential Claim Anomalies
 """
 
 app = FastAPI(
-    title="App:  Healthcare Claims Anomaly Detection",
+    title="App:  Healthcare Claims - Anomaly Detection",
     description=description,
     version="0.0.1",
     terms_of_service="http://example.com/terms/",
     contact={
-        "name": "AnnC, IainM, MonikaS",
-        "url": "http://x-force.example.com/contact/",
-        "email": "dp@x-force.example.com",
+        "name": "Iain McKone",
+        "email": "iain.mckone@gmail.com",
     },
     license_info={
         "name": "Apache 2.0",
