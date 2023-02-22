@@ -12,7 +12,7 @@ def run():
     st.markdown('\
         Healthcare fraud is an expensive white-collar crime in the US and leads to an \
         increase in healthcare premiums, and a reduction in quality and access to care.\
-        The National Health Care Anti-Fraud Association1 conservatively estimates that \
+        The National Health Care Anti-Fraud Association conservatively estimates that \
         about 3 percent of US healthcare spending is lost to fraud per year ($300 billion \
         approximately).')
     

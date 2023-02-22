@@ -72,22 +72,34 @@ def run():
 
 
         #--- chart KMeans clusters":  InscClaimAmtReimbursed
-        chart_KMeansClusters(pdfSample, "Age", "InscClaimAmtReimbursed", col1)
-        chart_KMeansClusters(pdfSample, "providerId", "InscClaimAmtReimbursed", col2)
+        #chart_KMeansClusters(pdfSample, "Age", "InscClaimAmtReimbursed", col1)
+        #chart_KMeansClusters(pdfSample, "providerId", "InscClaimAmtReimbursed", col2)        
+        
+        chart_KMeansClusters(pdfSample, "providerId", "InscClaimAmtReimbursed", col1)
+        chart_KMeansClusters(pdfSample, "providerId", "DeductibleAmtPaid", col2)
+
+        chart_KMeansClusters(pdfSample, "providerId", "IPAnnualReimbursementAmt", col1)
+        chart_KMeansClusters(pdfSample, "providerId", "IPAnnualDeductibleAmt", col2)
+
+        chart_KMeansClusters(pdfSample, "providerId", "OPAnnualReimbursementAmt", col1)
+        chart_KMeansClusters(pdfSample, "providerId", "OPAnnualDeductibleAmt", col2)
+
+        chart_KMeansClusters(pdfSample, "providerId", "ChronicCond_Heartfailure", col1)
+        chart_KMeansClusters(pdfSample, "providerId", "ChronicCond_KidneyDisease", col2)
 
 
         #--- chart cluster bars
-        chart_KMeansBars(pdfSample, "cluster", "InscClaimAmtReimbursed", col1)
-        chart_KMeansBars(pdfSample, "cluster", "DeductibleAmtPaid", col2)
+        #chart_KMeansBars(pdfSample, "cluster", "InscClaimAmtReimbursed", col1)
+        #chart_KMeansBars(pdfSample, "cluster", "DeductibleAmtPaid", col2)
 
-        chart_KMeansBars(pdfSample, "cluster", "IPAnnualReimbursementAmt", col1)
-        chart_KMeansBars(pdfSample, "cluster", "IPAnnualDeductibleAmt", col2)
+        #chart_KMeansBars(pdfSample, "cluster", "IPAnnualReimbursementAmt", col1)
+        #chart_KMeansBars(pdfSample, "cluster", "IPAnnualDeductibleAmt", col2)
     
-        chart_KMeansBars(pdfSample, "cluster", "OPAnnualReimbursementAmt", col1)
-        chart_KMeansBars(pdfSample, "cluster", "OPAnnualDeductibleAmt", col2)
+        #chart_KMeansBars(pdfSample, "cluster", "OPAnnualReimbursementAmt", col1)
+        #chart_KMeansBars(pdfSample, "cluster", "OPAnnualDeductibleAmt", col2)
     
-        chart_KMeansBars(pdfSample, "cluster", "ChronicCond_Heartfailure", col1)
-        chart_KMeansBars(pdfSample, "cluster", "ChronicCond_KidneyDisease", col2)
+        #chart_KMeansBars(pdfSample, "cluster", "ChronicCond_Heartfailure", col1)
+        #chart_KMeansBars(pdfSample, "cluster", "ChronicCond_KidneyDisease", col2)
 
     except TypeError as e:
         print("ERROR (litAnomUnsuperv.run_typeError):  ", e)
