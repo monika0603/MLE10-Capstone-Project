@@ -68,24 +68,25 @@ def run():
         chart_clusterDistr(pdfSample)
 
 
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
 
 
         #--- chart KMeans clusters":  InscClaimAmtReimbursed
         #chart_KMeansClusters(pdfSample, "Age", "InscClaimAmtReimbursed", col1)
         #chart_KMeansClusters(pdfSample, "providerId", "InscClaimAmtReimbursed", col2)        
         
-        chart_KMeansClusters(pdfSample, "providerId", "InscClaimAmtReimbursed", col1)
+        chart_KMeansClusters(pdfSample, "providerId", "AdmittedDays", col1)
         chart_KMeansClusters(pdfSample, "providerId", "DeductibleAmtPaid", col2)
+        chart_KMeansClusters(pdfSample, "providerId", "InscClaimAmtReimbursed", col3)
 
-        chart_KMeansClusters(pdfSample, "providerId", "IPAnnualReimbursementAmt", col1)
-        chart_KMeansClusters(pdfSample, "providerId", "IPAnnualDeductibleAmt", col2)
+        chart_KMeansClusters(pdfSample, "providerId", "ChronicCond_KidneyDisease", col1)
+        chart_KMeansClusters(pdfSample, "providerId", "ChronicCond_Heartfailure", col2)
+        chart_KMeansClusters(pdfSample, "providerId", "ChronicCond_ObstrPulmonary", col3)
 
-        chart_KMeansClusters(pdfSample, "providerId", "OPAnnualReimbursementAmt", col1)
-        chart_KMeansClusters(pdfSample, "providerId", "OPAnnualDeductibleAmt", col2)
+        chart_KMeansClusters(pdfSample, "AdmittedDays", "DeductibleAmtPaid", col1)
+        chart_KMeansClusters(pdfSample, "AdmittedDays", "InscClaimAmtReimbursed", col2)
+        chart_KMeansClusters(pdfSample, "DeductibleAmtPaid", "InscClaimAmtReimbursed", col3)
 
-        chart_KMeansClusters(pdfSample, "providerId", "ChronicCond_Heartfailure", col1)
-        chart_KMeansClusters(pdfSample, "providerId", "ChronicCond_KidneyDisease", col2)
 
 
         #--- chart cluster bars
