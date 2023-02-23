@@ -94,15 +94,44 @@ The selected XGBoost model was able to predict and label likely Providers with a
 
 #### **Approach 2:  Unsupervised Modelling - Claims** 
 
-Predicting Anomalies at a Claims level was performing using KMeans clustering.
+Predicting Anomalies at a Claims level was performed using KMeans clustering.  To clarify,  we utilize KMeans to identify clusters of claims data, and we use these to visually inspect anomalous data points, in comparison to the established normal.  Whether or not these can be attributed to fraud requires further analyis.
 
-Three significant clusters were identified and test claims were appropriately labelled to the appropriate cluster.
+A Random Forest Classifier was applied to each of the clusters to gain further insights on relative feature importance and weightings.
+
+&nbsp;
+
+![Unsupervised_MLE](./docs/presentation/capstone-unsupervised-mleFlow.png)
+
+Using an elbow plot, three significant clusters were identified and test claims were appropriately labelled to the appropriate cluster.
+
+&nbsp;
+
+![Unsupervised_elbow](./demo/app/bin/models/kmn_elbow.png)
+
+&nbsp;
+
+![Unsupervised_clusters](./docs/presentation/capstone-kmeans_clusters.png)
+
+&nbsp;
+
+By using cominations of features, interesting visuals can be generated to assist analysis, anomaly detection, and feature importance
 
 ![Unsupervised](./docs/presentation/capstone-kmeans_ageVsReimb.png)
 
 &nbsp;
 
-### **MLE Stack**
+A Random Forest Classifier was applied to each of the three key clusters to determine relative feature importance.  
+
+The top 3 features and overall contributing weights are as follows:
+- Cluster0 (90% - 3 features):   AdmittedDays, DeductibleAmtPaid, InscClaimAmtReimbursed
+- Cluster1 (40% - 3 features):   ChronicCond - KidneyDisease, Heartfailure, ObstrPulmonary
+- Cluster2 (40% - 3 features):   ChronicCond - KidneyDisease, Heartfailure, ObstrPulmonary
+
+It is interesting to note that 90% of the contributing weights for Cluster0 is due to 3 features
+
+&nbsp;
+
+### **Technology Stack**
 ![MLE Stack](./docs/presentation/capstone-dataFlow.png)
 
 &nbsp;
